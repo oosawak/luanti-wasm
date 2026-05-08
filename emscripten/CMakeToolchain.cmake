@@ -57,7 +57,14 @@ set(EMSCRIPTEN_LINK_FLAGS
   "-s INITIAL_MEMORY=536870912"
   "-s MAXIMUM_MEMORY=2147483648"
   "-s ASYNCIFY=1"
+  "-s ASSERTIONS=1"
   "-s ENVIRONMENT='web,worker'"
+  "--preload-file ${CMAKE_SOURCE_DIR}/builtin@/builtin"
+  "--preload-file ${CMAKE_SOURCE_DIR}/client@/client"
+  "--preload-file ${CMAKE_SOURCE_DIR}/clientmods@/clientmods"
+  "--preload-file ${CMAKE_SOURCE_DIR}/fonts@/fonts"
+  "--preload-file ${CMAKE_SOURCE_DIR}/games@/games"
+  "--preload-file ${CMAKE_SOURCE_DIR}/textures@/textures"
 )
 
 string(REPLACE ";" " " EMSCRIPTEN_LINK_FLAGS_STR "${EMSCRIPTEN_LINK_FLAGS}")
