@@ -137,10 +137,15 @@ endif()
 
 # Misc
 
-include(TestBigEndian)
-TEST_BIG_ENDIAN(BIG_ENDIAN)
-if(BIG_ENDIAN)
-	add_compile_definitions(__BIG_ENDIAN__)
+# Emscripten: Skip TEST_BIG_ENDIAN (always little-endian on WASM)
+if(NOT EMSCRIPTEN)
+  include(TestBigEndian)
+  TEST_BIG_ENDIAN(BIG_ENDIAN)
+  if(BIG_ENDIAN)
+  	add_compile_definitions(__BIG_ENDIAN__)
+  endif()
+else()
+  message(STATUS "Skipping TEST_BIG_ENDIAN for Emscripten (always little-endian)")
 endif()
 
 # Configuration report

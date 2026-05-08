@@ -13,6 +13,10 @@
 #ifdef _WIN32
 	#include <climits>
 	#define MAX_SEMAPHORE_COUNT LONG_MAX - 1
+#elif defined(__EMSCRIPTEN__)
+	#include <cerrno>
+	#include <emscripten.h>
+	#include <semaphore.h>
 #else
 	#include <cerrno>
 	#include <sys/time.h>
@@ -105,6 +109,23 @@ bool Semaphore::wait(unsigned int time_ms)
 		assert(ret == WAIT_TIMEOUT);
 		return false;
 	}
+#elif defined(__EMSCRIPTEN__)
+	// Emscripten: sem_timedwait is not available without pthreads/SharedArrayBuffer.
+	// Use sem_trywait with emscripten_sleep() to yield to the event loop.
+	int ret;
+	if (time_ms > 0) {
+		unsigned int elapsed = 0;
+		do {
+			ret = sem_trywait(&semaphore);
+			if (ret == 0) break;
+			emscripten_sleep(1);
+			elapsed++;
+		} while (elapsed < time_ms);
+	} else {
+		ret = sem_trywait(&semaphore);
+	}
+	assert(!ret || (errno == ETIMEDOUT || errno == EINTR || errno == EAGAIN));
+	return !ret;
 #else
 # if defined(__MACH__) && defined(__APPLE__)
 	mach_timespec_t wait_time;
@@ -149,4 +170,3 @@ bool Semaphore::wait(unsigned int time_ms)
 	return !ret;
 #endif
 }
-

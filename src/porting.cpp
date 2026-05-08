@@ -25,7 +25,7 @@
 #if !defined(_WIN32)
 	#include <unistd.h>
 	#include <sys/utsname.h>
-	#if !defined(__ANDROID__)
+	#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
 		#include <spawn.h>
 	#endif
 #endif
@@ -49,6 +49,10 @@
 
 #if defined(__HAIKU__)
 	#include <FindDirectory.h>
+#endif
+
+#if defined(__EMSCRIPTEN__)
+	#include <emscripten.h>
 #endif
 
 #if HAVE_MALLOC_TRIM
@@ -922,6 +926,11 @@ static bool open_uri(const std::string &uri)
 	return (intptr_t)ShellExecuteA(NULL, NULL, uri.c_str(), NULL, NULL, SW_SHOWNORMAL) > 32;
 #elif defined(__ANDROID__)
 	openURIAndroid(uri.c_str());
+	return true;
+#elif defined(__EMSCRIPTEN__)
+	// In browser, open URI using JavaScript window.open()
+	std::string js = "window.open('" + uri + "', '_blank');";
+	emscripten_run_script(js.c_str());
 	return true;
 #elif defined(__APPLE__)
 	const char *argv[] = {"open", uri.c_str(), NULL};
