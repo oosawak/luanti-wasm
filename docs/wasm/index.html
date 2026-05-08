@@ -74,9 +74,19 @@
 <div id="toolbar">
   <strong style="color:#fff;">🟦 Luanti WASM</strong>
   <span>|</span>
-  <a href="../index.html">← プロジェクトページへ</a>
+  <a href="../index.html">← 戻る</a>
+  <span>|</span>
+  <input id="url-box" type="text" readonly
+    style="flex:1;max-width:400px;background:#222;color:#a0c4ff;border:1px solid #444;
+           border-radius:4px;padding:3px 8px;font-size:0.8rem;cursor:text;"
+    onclick="this.select()" title="クリックで全選択・コピーできます">
+  <button onclick="navigator.clipboard.writeText(document.getElementById('url-box').value).then(()=>{this.textContent='✓ コピー済';setTimeout(()=>this.textContent='コピー',1500)})"
+    style="background:#e94560;color:#fff;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:0.8rem;">
+    コピー
+  </button>
   <div id="status">起動中...</div>
 </div>
+<script>document.getElementById('url-box').value = location.href;</script>
 
 <div id="canvas-container">
   <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
