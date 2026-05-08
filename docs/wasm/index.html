@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luanti WASM</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #000;
+      color: #fff;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #toolbar {
+      width: 100%;
+      background: #111;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid #333;
+      flex-shrink: 0;
+    }
+    #toolbar a {
+      color: #a0c4ff;
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+    #toolbar span { color: #555; }
+    #status {
+      margin-left: auto;
+      font-size: 0.8rem;
+      color: #888;
+    }
+    #canvas-container {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    canvas#canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #1a1a2e;
+    }
+    #loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: #1a1a2e;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      z-index: 10;
+    }
+    #loading-overlay h2 { color: #a0c4ff; font-size: 1.4rem; }
+    #progress-bar {
+      width: 300px;
+      height: 8px;
+      background: #0f3460;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    #progress-fill {
+      height: 100%;
+      background: #e94560;
+      border-radius: 4px;
+      transition: width 0.2s;
+      width: 0%;
+    }
+    #progress-text { color: #888; font-size: 0.85rem; }
+    #log {
+      width: 100%;
+      max-height: 120px;
+      background: #0a0a0a;
+      border-top: 1px solid #222;
+      overflow-y: auto;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      color: #666;
+      flex-shrink: 0;
+    }
+    #log .err { color: #e94560; }
+  </style>
+</head>
+<body>
+
+<div id="toolbar">
+  <strong style="color:#fff;">🟦 Luanti WASM</strong>
+  <span>|</span>
+  <a href="../index.html">← プロジェクトページへ</a>
+  <div id="status">読み込み中...</div>
+</div>
+
+<div id="canvas-container">
+  <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+  <div id="loading-overlay">
+    <h2>🟦 Luanti を読み込んでいます</h2>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div id="progress-text">初期化中...</div>
+  </div>
+</div>
+
+<div id="log"></div>
+
+<script>
+  const overlay = document.getElementById('loading-overlay');
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  const statusEl = document.getElementById('status');
+  const logEl = document.getElementById('log');
+
+  function addLog(msg, isErr) {
+    const line = document.createElement('div');
+    if (isErr) line.className = 'err';
+    line.textContent = msg;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  var Module = {
+    canvas: document.getElementById('canvas'),
+
+    print: function(text) {
+      addLog(text, false);
+    },
+    printErr: function(text) {
+      addLog(text, true);
+    },
+
+    setStatus: function(text) {
+      if (!text) {
+        overlay.style.display = 'none';
+        statusEl.textContent = '実行中';
+        return;
+      }
+      // "Downloading data... (X/Y)" をパース
+      var match = text.match(/\((\d+)\/(\d+)\)/);
+      if (match) {
+        var pct = Math.round(parseInt(match[1]) / parseInt(match[2]) * 100);
+        progressFill.style.width = pct + '%';
+        progressText.textContent = text + ' — ' + pct + '%';
+        statusEl.textContent = '読み込み ' + pct + '%';
+      } else {
+        progressText.textContent = text;
+        statusEl.textContent = text;
+      }
+    },
+
+    monitorRunDependencies: function(left) {
+      if (left === 0) {
+        progressFill.style.width = '100%';
+        progressText.textContent = '起動中...';
+        statusEl.textContent = '起動中...';
+      }
+    },
+
+    onRuntimeInitialized: function() {
+      overlay.style.display = 'none';
+      statusEl.textContent = '実行中';
+    }
+  };
+
+  // エラーハンドリング
+  window.onerror = function(msg, url, line) {
+    addLog('ERROR: ' + msg + ' (' + url + ':' + line + ')', true);
+    statusEl.textContent = 'エラー発生';
+  };
+</script>
+<script async src="luanti.js"></script>
+
+</body>
+</html>

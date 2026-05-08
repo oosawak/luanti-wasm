@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luanti WASM - ブラウザで動く Minetest</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(135deg, #16213e, #0f3460);
+      padding: 60px 20px;
+      text-align: center;
+      border-bottom: 3px solid #e94560;
+    }
+    header h1 {
+      font-size: 3rem;
+      color: #fff;
+      letter-spacing: 2px;
+    }
+    header p {
+      font-size: 1.2rem;
+      color: #a0c4ff;
+      margin-top: 10px;
+    }
+    .badge {
+      display: inline-block;
+      background: #e94560;
+      color: #fff;
+      border-radius: 4px;
+      padding: 3px 10px;
+      font-size: 0.8rem;
+      margin: 5px 3px;
+      vertical-align: middle;
+    }
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .launch-btn {
+      display: block;
+      width: fit-content;
+      margin: 30px auto;
+      padding: 18px 48px;
+      background: #e94560;
+      color: #fff;
+      font-size: 1.4rem;
+      font-weight: bold;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .launch-btn:hover {
+      background: #c73652;
+      transform: scale(1.03);
+    }
+    section { margin: 40px 0; }
+    h2 {
+      font-size: 1.6rem;
+      color: #a0c4ff;
+      border-left: 4px solid #e94560;
+      padding-left: 12px;
+      margin-bottom: 16px;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #16213e;
+      border: 1px solid #0f3460;
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .card h3 { color: #fff; margin-bottom: 8px; }
+    .card p { color: #aaa; font-size: 0.95rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 14px; border-bottom: 1px solid #0f3460; text-align: left; }
+    th { color: #a0c4ff; background: #16213e; }
+    tr:hover { background: #16213e55; }
+    .ok   { color: #4caf50; }
+    .off  { color: #e94560; }
+    .soon { color: #ff9800; }
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #555;
+      font-size: 0.9rem;
+      border-top: 1px solid #0f3460;
+      margin-top: 60px;
+    }
+    footer a { color: #a0c4ff; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🟦 Luanti WASM</h1>
+  <p>Luanti (Minetest) をブラウザで動かす WebAssembly ビルド</p>
+  <br>
+  <span class="badge">WebAssembly</span>
+  <span class="badge">Emscripten</span>
+  <span class="badge">C++17</span>
+  <span class="badge">SDL2</span>
+  <span class="badge">WebGL</span>
+</header>
+
+<main>
+
+  <a class="launch-btn" href="wasm/index.html">▶ ブラウザで起動する</a>
+
+  <section>
+    <h2>プロジェクト概要</h2>
+    <p>
+      このプロジェクトは、オープンソースのボクセルゲームエンジン
+      <strong>Luanti (旧称 Minetest)</strong> の C++ クライアントを
+      <strong>Emscripten</strong> を使って WebAssembly にコンパイルし、
+      インストール不要でブラウザ上で動かすことを目的としています。
+    </p>
+    <br>
+    <p>
+      This project compiles the <strong>Luanti (formerly Minetest)</strong>
+      C++ game client to <strong>WebAssembly</strong> via Emscripten,
+      enabling it to run directly in the browser without any installation.
+    </p>
+  </section>
+
+  <section>
+    <h2>技術スタック</h2>
+    <div class="card-grid">
+      <div class="card">
+        <h3>🔧 ビルドツール</h3>
+        <p>Emscripten 5.0.7 + CMake 3.28<br>emcmake / emmake でクロスコンパイル</p>
+      </div>
+      <div class="card">
+        <h3>🎮 グラフィックス</h3>
+        <p>IrrlichtMt → WebGL 変換<br>SDL2 (Emscripten ポート) でウィンドウ管理</p>
+      </div>
+      <div class="card">
+        <h3>📦 依存ライブラリ</h3>
+        <p>zlib / libpng / libjpeg / freetype / sqlite3 / zstd<br>すべて Emscripten sysroot でビルド</p>
+      </div>
+      <div class="card">
+        <h3>⚡ 実行環境</h3>
+        <p>ASYNCIFY=1 で非同期対応<br>初期メモリ 512MB / 最大 2GB</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>機能ステータス</h2>
+    <table>
+      <tr><th>機能</th><th>状態</th><th>備考</th></tr>
+      <tr><td>レンダリング (WebGL)</td><td class="ok">✓ 有効</td><td>IrrlichtMt → WebGL</td></tr>
+      <tr><td>SDL2 入力</td><td class="ok">✓ 有効</td><td>キーボード・マウス</td></tr>
+      <tr><td>SQLite3</td><td class="ok">✓ 有効</td><td>ローカルDB</td></tr>
+      <tr><td>PNG / JPEG / Freetype</td><td class="ok">✓ 有効</td><td>テクスチャ・フォント</td></tr>
+      <tr><td>サウンド (OpenAL)</td><td class="off">✗ 無効</td><td>将来対応予定</td></tr>
+      <tr><td>ネットワーク (cURL)</td><td class="off">✗ 無効</td><td>Fetch API で代替予定</td></tr>
+      <tr><td>マルチスレッド</td><td class="soon">△ 限定的</td><td>SharedArrayBuffer 要設定</td></tr>
+      <tr><td>サーバー</td><td class="off">✗ 無効</td><td>クライアントのみ</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>ビルド方法</h2>
+    <div class="card">
+      <h3>必要なもの</h3>
+      <p style="margin-top:8px;">
+        • Emscripten SDK (emsdk)<br>
+        • CMake 3.28+<br>
+        • Python 3, Node.js, Git
+      </p>
+      <pre style="background:#0f3460;padding:14px;border-radius:6px;margin-top:14px;overflow-x:auto;font-size:0.85rem;">
+# emsdk インストール
+bash emscripten/install-emsdk.sh
+
+# ビルド実行
+bash emscripten/build.sh</pre>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>
+    <a href="https://github.com/oosawak/luanti-wasm">GitHub: oosawak/luanti-wasm</a>
+    &nbsp;|&nbsp;
+    <a href="https://www.luanti.org/">Luanti 公式サイト</a>
+    &nbsp;|&nbsp;
+    Built with <a href="https://emscripten.org/">Emscripten</a>
+  </p>
+</footer>
+
+</body>
+</html>
