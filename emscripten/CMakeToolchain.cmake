@@ -100,7 +100,7 @@ set(ENABLE_SOUND      OFF CACHE BOOL "Sound disabled for WASM (use Web Audio API
 
 # Force client build
 set(BUILD_CLIENT  ON  CACHE BOOL "Client is required"    FORCE)
-set(RUN_IN_PLACE  ON  CACHE BOOL "RUN_IN_PLACE for WASM" FORCE)
+set(RUN_IN_PLACE  OFF CACHE BOOL "Use system paths for WASM (setSystemPaths handles paths)" FORCE)
 
 # Set install directories (normally set by UNIX/WIN32 detection, but Emscripten is neither)
 set(SHAREDIR      "."       CACHE STRING "Share directory for WASM")
