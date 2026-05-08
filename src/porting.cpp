@@ -604,6 +604,19 @@ bool setSystemPaths()
 }
 
 
+#elif defined(__EMSCRIPTEN__)
+
+bool setSystemPaths()
+{
+	// In WASM, game data is preloaded into the virtual filesystem at "/"
+	path_share = "/";
+	// Use IndexedDB-backed persistent storage for user data
+	path_user  = "/home/user/.minetest";
+	// Ensure the user directory exists in the virtual filesystem
+	fs::CreateAllDirs(path_user);
+	return true;
+}
+
 #else
 
 bool setSystemPaths()
