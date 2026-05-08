@@ -100,6 +100,8 @@
   <h2>🟦 Luanti を読み込んでいます</h2>
   <div id="progress-bar"><div id="progress-fill"></div></div>
   <div id="progress-text">初期化中... (13MB のWASMを読み込みます)</div>
+  <div id="load-timer" style="color:#666;font-size:0.85rem;margin-top:6px;">経過: 0秒</div>
+  <div id="load-stage" style="color:#a0c4ff;font-size:0.8rem;">⏳ WASM ダウンロード待機中</div>
 </div>
 
 <script>
@@ -110,6 +112,17 @@
   var _logEl        = document.getElementById('log');
   var _logLines     = [];
   var _logVisible   = false;
+  var _timerEl      = document.getElementById('load-timer');
+  var _stageEl      = document.getElementById('load-stage');
+  var _startTime    = Date.now();
+
+  // 経過時間タイマー（ローディング中のみ）
+  var _timerInterval = setInterval(function() {
+    var sec = Math.floor((Date.now() - _startTime) / 1000);
+    _timerEl.textContent = '経過: ' + sec + '秒';
+    if (sec > 60) _timerEl.style.color = '#fa0';
+    if (sec > 120) _timerEl.style.color = '#f44';
+  }, 1000);
 
   function addLog(msg, cls) {
     _logLines.push((cls ? '[' + cls + '] ' : '') + msg);
@@ -241,6 +254,7 @@
         _statusEl.textContent = text;
       }
       addLog('[status] ' + text);
+      _stageEl.textContent = '⏳ ' + text;
     },
 
     monitorRunDependencies: function(left) {
@@ -249,11 +263,11 @@
     },
 
     onRuntimeInitialized: function() {
-      addLog('[runtime] 初期化完了', 'info');
-      // キャンバスサイズをログに記録
+      addLog('[runtime] 初期化完了 (' + Math.floor((Date.now()-_startTime)/1000) + '秒)', 'info');
       var c = document.getElementById('canvas');
       addLog('[canvas] CSS: ' + c.clientWidth + 'x' + c.clientHeight +
              '  pixel: ' + c.width + 'x' + c.height, 'info');
+      clearInterval(_timerInterval);
       _overlay.style.display = 'none';
       _statusEl.textContent = '実行中';
     },
