@@ -60,6 +60,8 @@ set(EMSCRIPTEN_LINK_FLAGS
   "-s ASSERTIONS=1"
   "-s DISABLE_EXCEPTION_CATCHING=0"
   "-fexceptions"
+  "-s MAX_WEBGL_VERSION=2"
+  "-s MIN_WEBGL_VERSION=2"
   "-s ENVIRONMENT='web,worker'"
   "--preload-file ${CMAKE_SOURCE_DIR}/builtin@/builtin"
   "--preload-file ${CMAKE_SOURCE_DIR}/client@/client"

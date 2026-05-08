@@ -648,6 +648,11 @@ bool CIrrDeviceSDL::createWindowWithContext()
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, CreationParams.Stencilbuffer ? 8 : 0);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, CreationParams.Doublebuffer ? 1 : 0);
 
+	// Request WebGL2 context (OpenGL ES 3.0)
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+
 	if (CreationParams.AntiAlias > 1) {
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, CreationParams.AntiAlias);
@@ -771,7 +776,12 @@ void CIrrDeviceSDL::createDriver()
 		VideoDriver = video::createOpenGLDriver(CreationParams, FileSystem, ContextManager);
 		break;
 	case video::EDT_OPENGL3:
+#ifdef _IRR_EMSCRIPTEN_PLATFORM_
+		// WebGL2 is OpenGL ES 3.0 — use OGLES2 driver which supports ES2/ES3
+		VideoDriver = video::createOGLES2Driver(CreationParams, FileSystem, ContextManager);
+#else
 		VideoDriver = video::createOpenGL3Driver(CreationParams, FileSystem, ContextManager);
+#endif
 		break;
 	case video::EDT_OGLES2:
 		VideoDriver = video::createOGLES2Driver(CreationParams, FileSystem, ContextManager);

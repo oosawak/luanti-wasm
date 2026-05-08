@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luanti WASM</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
+    body {
+      display: flex;
+      flex-direction: column;
+      font-family: monospace;
+      color: #fff;
+    }
+    #toolbar {
+      width: 100%;
+      background: #111;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid #333;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+    #toolbar a { color: #a0c4ff; text-decoration: none; font-size: 0.85rem; }
+    #toolbar span { color: #555; }
+    #status { margin-left: auto; font-size: 0.8rem; color: #aaa; }
+
+    #canvas-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    canvas#canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+    }
+
+    #loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: #1a1a2e;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      z-index: 10;
+    }
+    #loading-overlay h2 { color: #a0c4ff; font-size: 1.4rem; }
+    #progress-bar { width: 300px; height: 8px; background: #0f3460; border-radius: 4px; overflow: hidden; }
+    #progress-fill { height: 100%; background: #e94560; border-radius: 4px; width: 0%; transition: width 0.3s; }
+    #progress-text { color: #aaa; font-size: 0.9rem; max-width: 360px; text-align: center; }
+
+    #log {
+      flex-shrink: 0;
+      height: 80px;
+      background: #0a0a0a;
+      border-bottom: 1px solid #222;
+      overflow-y: auto;
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      color: #555;
+    }
+    #log .err { color: #e94560; }
+    #log .info { color: #4caf50; }
+  </style>
+</head>
+<body>
+
+<div id="toolbar">
+  <strong style="color:#fff;">🟦 Luanti WASM</strong>
+  <span>|</span>
+  <a href="../index.html">← 戻る</a>
+  <button onclick="
+    var text = Array.from(document.querySelectorAll('#log div')).map(d=>d.textContent).join('\n');
+    navigator.clipboard.writeText(text).then(()=>{this.textContent='✓ コピー済';setTimeout(()=>this.textContent='ログをコピー',1500)});
+  " style="background:#0f3460;color:#a0c4ff;border:1px solid #333;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:0.8rem;">
+    ログをコピー
+  </button>
+  <div id="status">起動中...</div>
+</div>
+
+<div id="log"></div>
+
+<div id="canvas-container">
+  <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+  <div id="loading-overlay">
+    <h2>🟦 Luanti を読み込んでいます</h2>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div id="progress-text">初期化中... (13MB のWASMを読み込みます)</div>
+  </div>
+</div>
+
+<script>
+  var _overlay      = document.getElementById('loading-overlay');
+  var _progressFill = document.getElementById('progress-fill');
+  var _progressText = document.getElementById('progress-text');
+  var _statusEl     = document.getElementById('status');
+  var _logEl        = document.getElementById('log');
+
+  function addLog(msg, cls) {
+    var line = document.createElement('div');
+    if (cls) line.className = cls;
+    line.textContent = msg;
+    _logEl.appendChild(line);
+    _logEl.scrollTop = _logEl.scrollHeight;
+  }
+
+  // Module をグローバルに定義（luanti.js が読み込む前に設定）
+  var Module = {
+    canvas: (function() {
+      var c = document.getElementById('canvas');
+      return c;
+    })(),
+
+    locateFile: function(path) {
+      // luanti.wasm は同じディレクトリ
+      return path;
+    },
+
+    print: function(text) {
+      addLog(text, 'info');
+    },
+    printErr: function(text) {
+      addLog(text, 'err');
+    },
+
+    setStatus: function(text) {
+      if (!text) {
+        _overlay.style.display = 'none';
+        _statusEl.textContent = '実行中';
+        return;
+      }
+      var m = text.match(/\((\d+)\/(\d+)\)/);
+      if (m) {
+        var pct = Math.round(100 * parseInt(m[1]) / parseInt(m[2]));
+        _progressFill.style.width = pct + '%';
+        _progressText.textContent = 'ダウンロード中 ' + pct + '% — ' + m[1] + ' / ' + m[2] + ' bytes';
+        _statusEl.textContent = pct + '%';
+      } else {
+        _progressText.textContent = text;
+        _statusEl.textContent = text;
+      }
+      addLog('[status] ' + text, null);
+    },
+
+    monitorRunDependencies: function(left) {
+      addLog('[deps remaining] ' + left, null);
+      if (left === 0) {
+        _progressFill.style.width = '100%';
+        _progressText.textContent = '起動中...';
+      }
+    },
+
+    onRuntimeInitialized: function() {
+      addLog('[runtime] 初期化完了', 'info');
+      _overlay.style.display = 'none';
+      _statusEl.textContent = '実行中';
+    }
+  };
+
+  window.addEventListener('error', function(e) {
+    addLog('ERROR: ' + e.message + ' (' + e.filename + ':' + e.lineno + ')', 'err');
+    _statusEl.textContent = 'エラー';
+    _progressText.textContent = 'エラー: ' + e.message;
+  });
+
+  // luanti.js を動的に読み込む（Moduleが確実に定義された後）
+  var s = document.createElement('script');
+  s.src = 'luanti.js';
+  s.onerror = function() {
+    addLog('luanti.js の読み込みに失敗しました', 'err');
+    _progressText.textContent = 'luanti.js の読み込みに失敗しました';
+    _statusEl.textContent = 'エラー';
+  };
+  document.body.appendChild(s);
+</script>
+
+</body>
+</html>
