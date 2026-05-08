@@ -58,6 +58,8 @@ set(EMSCRIPTEN_LINK_FLAGS
   "-s MAXIMUM_MEMORY=2147483648"
   "-s ASYNCIFY=1"
   "-s ASSERTIONS=1"
+  "-s DISABLE_EXCEPTION_CATCHING=0"
+  "-fexceptions"
   "-s ENVIRONMENT='web,worker'"
   "--preload-file ${CMAKE_SOURCE_DIR}/builtin@/builtin"
   "--preload-file ${CMAKE_SOURCE_DIR}/client@/client"
@@ -74,8 +76,8 @@ set(CMAKE_SHARED_LINKER_FLAGS "${EMSCRIPTEN_LINK_FLAGS_STR}")
 set(CMAKE_MODULE_LINKER_FLAGS "${EMSCRIPTEN_LINK_FLAGS_STR}")
 
 # Also pass USE_* flags at compile time so headers are found via -include / port injection
-set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -s USE_ZLIB=1 -s USE_LIBJPEG=1 -s USE_LIBPNG=1 -s USE_SDL=2")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -s USE_ZLIB=1 -s USE_LIBJPEG=1 -s USE_LIBPNG=1 -s USE_SDL=2")
+set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -s USE_ZLIB=1 -s USE_LIBJPEG=1 -s USE_LIBPNG=1 -s USE_SDL=2 -fexceptions")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -s USE_ZLIB=1 -s USE_LIBJPEG=1 -s USE_LIBPNG=1 -s USE_SDL=2 -fexceptions")
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_DEBUG   "-g -O0 -s ASSERTIONS=1")
