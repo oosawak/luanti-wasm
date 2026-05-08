@@ -1395,7 +1395,7 @@ void CIrrDeviceSDL::closeDevice()
 void CIrrDeviceSDL::setResizable(bool resize)
 {
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
-	os::Printer::log("Resizable not available on the web.", ELL_WARNING);
+	// Resizing is handled by the browser; silently ignore.
 	return;
 #else  // !_IRR_EMSCRIPTEN_PLATFORM_
 	if (resize != Resizable) {
