@@ -14,6 +14,7 @@
       top: 0; left: 0;
       width: 100%; height: 100%;
       display: block;
+      z-index: 1;
     }
 
     /* UIは全てキャンバスの上にオーバーレイ */
@@ -164,6 +165,45 @@
     document.body.appendChild(a); a.click();
     document.body.removeChild(a); URL.revokeObjectURL(url);
   });
+
+  // ── FPS / WebGL draw カウンター ──────────────────────
+  var _fpsEl = document.createElement('div');
+  _fpsEl.style.cssText = 'position:fixed;top:32px;right:8px;z-index:50;' +
+    'color:#0f0;font:bold 13px monospace;text-shadow:1px 1px 3px #000;' +
+    'pointer-events:none;line-height:1.5;text-align:right;';
+  document.body.appendChild(_fpsEl);
+
+  var _drawCount = 0, _frameCount = 0, _fpsLastT = performance.now();
+
+  // WebGL draw 呼び出しをインターセプト（luanti.js より前に設定）
+  var _origGetCtx = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function(type, attrs) {
+    var ctx = _origGetCtx.call(this, type, attrs);
+    if (ctx && !ctx.__fps_hooked && (type === 'webgl2' || type === 'webgl')) {
+      ctx.__fps_hooked = true;
+      var _de = ctx.drawElements.bind(ctx);
+      ctx.drawElements = function() { _drawCount++; return _de.apply(ctx, arguments); };
+      var _da = ctx.drawArrays.bind(ctx);
+      ctx.drawArrays = function() { _drawCount++; return _da.apply(ctx, arguments); };
+    }
+    return ctx;
+  };
+
+  // RAF ループで毎秒更新
+  var _rafFrame = 0;
+  (function rafLoop(t) {
+    _frameCount++;
+    var dt = t - _fpsLastT;
+    if (dt >= 1000) {
+      var fps   = Math.round(_frameCount * 1000 / dt);
+      var draws = Math.round(_drawCount  * 1000 / dt);
+      _fpsEl.textContent = fps + ' fps\n' + draws + ' draws/s';
+      _fpsEl.style.color = draws > 0 ? '#0f0' : '#fa0';
+      _frameCount = 0; _drawCount = 0; _fpsLastT = t;
+    }
+    requestAnimationFrame(rafLoop);
+  })(performance.now());
+  // ─────────────────────────────────────────────────────
 
   // console をキャプチャ
   var _origErr  = console.error;
