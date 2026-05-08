@@ -992,6 +992,9 @@ void COpenGL3DriverBase::drawGeneric(const void *vertices, const void *indexList
 		u32 primitiveCount,
 		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType)
 {
+	if (!primitiveCount)
+		return;
+
 	auto &vTypeDesc = getVertexTypeDescription(vType);
 	beginDraw(vTypeDesc, reinterpret_cast<uintptr_t>(vertices));
 	GLenum indexSize = 0;
@@ -1004,6 +1007,11 @@ void COpenGL3DriverBase::drawGeneric(const void *vertices, const void *indexList
 		indexSize = GL_UNSIGNED_INT;
 		break;
 	}
+
+	// When using client-side index data (non-null pointer), ensure no element
+	// array buffer is bound — a stale binding would cause WebGL assertion failures.
+	if (indexList)
+		GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	switch (pType) {
 	case scene::EPT_POINTS:
