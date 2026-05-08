@@ -82,6 +82,7 @@
   <strong style="color:#fff;">🟦 Luanti WASM</strong>
   <span>|</span>
   <a href="../index.html">← 戻る</a>
+  <button id="copyBtn" class="tbtn">📋 ログをコピー</button>
   <button id="dlBtn" class="tbtn">📥 ログを保存</button>
   <button id="clearBtn" class="tbtn">🗑 ログ消去</button>
   <div id="status">起動中...</div>
@@ -114,6 +115,38 @@
     _logEl.appendChild(line);
     _logEl.scrollTop = _logEl.scrollHeight;
   }
+
+  // ログをクリップボードにコピー
+  document.getElementById('copyBtn').addEventListener('click', function() {
+    var btn = this;
+    var text = _logLines.join('\n');
+    if (!text) { btn.textContent = '(ログなし)'; setTimeout(function(){btn.textContent='📋 ログをコピー';},1500); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() {
+        btn.textContent = '✓ コピー済';
+        setTimeout(function(){ btn.textContent = '📋 ログをコピー'; }, 1500);
+      }).catch(function(err) {
+        // フォールバック: textarea + execCommand
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed'; ta.style.top = '0'; ta.style.left = '0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        btn.textContent = '✓ コピー済';
+        setTimeout(function(){ btn.textContent = '📋 ログをコピー'; }, 1500);
+      });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed'; ta.style.top = '0'; ta.style.left = '0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      btn.textContent = '✓ コピー済';
+      setTimeout(function(){ btn.textContent = '📋 ログをコピー'; }, 1500);
+    }
+  });
 
   // ログをファイルとしてダウンロード
   document.getElementById('dlBtn').addEventListener('click', function() {
