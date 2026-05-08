@@ -849,6 +849,11 @@ void COpenGL3DriverBase::draw2DImageBatch(const video::ITexture *texture,
 	}
 
 	const u32 drawCount = core::min_<u32>(positions.size(), sourceRects.size());
+	if (!drawCount) {
+		if (clipRect)
+			GL.Disable(GL_SCISSOR_TEST);
+		return;
+	}
 	assert(6 * drawCount * sizeof(u16) <= QuadIndexVBO.getSize()); // FIXME split the batch? or let it crash?
 
 	std::vector<S3DVertex> vtx;
@@ -983,6 +988,8 @@ void COpenGL3DriverBase::drawArrays(GLenum primitiveType, const VertexType &vert
 
 void COpenGL3DriverBase::drawElements(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount, const u16 *indices, int indexCount)
 {
+	if (!indexCount || !vertexCount)
+		return;
 	beginDraw(vertexType, reinterpret_cast<uintptr_t>(vertices));
 	GL.DrawRangeElements(primitiveType, 0, vertexCount - 1, indexCount, GL_UNSIGNED_SHORT, indices);
 	endDraw(vertexType);
