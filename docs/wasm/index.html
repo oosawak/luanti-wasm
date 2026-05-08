@@ -76,8 +76,16 @@
   <span>|</span>
   <a href="../index.html">← 戻る</a>
   <button onclick="
+
     var text = Array.from(document.querySelectorAll('#log div')).map(d=>d.textContent).join('\n');
-    navigator.clipboard.writeText(text).then(()=>{this.textContent='✓ コピー済';setTimeout(()=>this.textContent='ログをコピー',1500)});
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(text).then(()=>{this.textContent='✓ コピー済';setTimeout(()=>this.textContent='ログをコピー',1500)});
+    } else {
+      var ta=document.createElement('textarea');ta.value=text;
+      document.body.appendChild(ta);ta.select();document.execCommand('copy');
+      document.body.removeChild(ta);
+      this.textContent='✓ コピー済';setTimeout(()=>this.textContent='ログをコピー',1500);
+    }
   " style="background:#0f3460;color:#a0c4ff;border:1px solid #333;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:0.8rem;">
     ログをコピー
   </button>
