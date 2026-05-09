@@ -124,8 +124,26 @@
     if (s > 120) _timerEl.style.color = '#f44';
   }, 1000);
 
-  // WebGL draw カウンター（luanti.js より前に設定）
+  // キャンバスをコンテナサイズに合わせる（luanti.js 読み込み前）
+  (function() {
+    var canvas = document.getElementById('canvas');
+    var container = document.getElementById('canvas-container');
+    function sizeCanvas() {
+      var w = container.clientWidth;
+      var h = container.clientHeight;
+      if (w > 0 && h > 0 && (canvas.width !== w || canvas.height !== h)) {
+        canvas.width = w;
+        canvas.height = h;
+        addLog('[canvas] リサイズ: ' + w + 'x' + h, 'info');
+      }
+    }
+    sizeCanvas();
+    window.addEventListener('resize', sizeCanvas);
+  })();
+
+  // WebGL draw/clear カウンター（luanti.js より前に設定）
   var _drawCount = 0;
+  var _clearCount = 0;
   (function() {
     var _orig = HTMLCanvasElement.prototype.getContext;
     HTMLCanvasElement.prototype.getContext = function(t, a) {
@@ -134,6 +152,8 @@
         ctx.__hooked = true;
         var de = ctx.drawElements; ctx.drawElements = function() { _drawCount++; return de.apply(this, arguments); };
         var da = ctx.drawArrays;   ctx.drawArrays   = function() { _drawCount++; return da.apply(this, arguments); };
+        var cl = ctx.clear;        ctx.clear        = function() { _clearCount++; return cl.apply(this, arguments); };
+        addLog('[WebGL] コンテキスト取得: ' + t, 'info');
       }
       return ctx;
     };
@@ -146,9 +166,10 @@
     if (t - _rafLast >= 1000) {
       var fps = Math.round(_rafFrames * 1000 / (t - _rafLast));
       var dps = Math.round(_drawCount  * 1000 / (t - _rafLast));
-      _fpsEl.innerHTML = fps + ' fps<br>' + dps + ' draws/s';
-      _fpsEl.style.color = dps > 0 ? '#0f0' : '#fa0';
-      _rafFrames = 0; _drawCount = 0; _rafLast = t;
+      var cps = Math.round(_clearCount * 1000 / (t - _rafLast));
+      _fpsEl.innerHTML = fps + ' fps<br>' + dps + ' draws/s<br>' + cps + ' clears/s';
+      _fpsEl.style.color = dps > 0 ? '#0f0' : (cps > 0 ? '#fa0' : '#f44');
+      _rafFrames = 0; _drawCount = 0; _clearCount = 0; _rafLast = t;
     }
     requestAnimationFrame(loop);
   })(performance.now());
