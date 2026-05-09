@@ -22,7 +22,8 @@
       gap: 8px;
       border-bottom: 1px solid #333;
       flex-shrink: 0;
-      z-index: 20;
+      z-index: 100;
+      position: relative;
     }
     #toolbar a { color: #a0c4ff; text-decoration: none; font-size: 0.85rem; }
     #toolbar span { color: #555; }
@@ -70,6 +71,8 @@
       padding: 6px 12px;
       font-size: 0.78rem;
       color: #ccc;
+      position: relative;
+      z-index: 100;
     }
     #log .err  { color: #ff6b6b; }
     #log .info { color: #69db7c; }
@@ -85,6 +88,10 @@
   <button id="copyBtn" class="tbtn">📋 ログをコピー</button>
   <button id="dlBtn" class="tbtn">📥 ログを保存</button>
   <button id="clearBtn" class="tbtn">🗑 ログ消去</button>
+  <button id="stopBtn" class="tbtn" style="background:#5a1010;color:#ffa0a0;border-color:#a00;"
+    title="ゲームを一時停止してボタンを操作可能にします">⏹ 停止</button>
+  <button id="reloadBtn" class="tbtn" style="background:#0a3a10;color:#a0ffa0;border-color:#0a0;"
+    title="ページを再読み込みします">🔄 再読み込み</button>
   <div id="status">起動中...</div>
 </div>
 
@@ -232,6 +239,52 @@
   document.getElementById('clearBtn').addEventListener('click', function() {
     _logEl.innerHTML = '';
     _logLines = [];
+  });
+
+  // 停止ボタン：ゲームを一時停止してキーボード・マウスキャプチャを解除
+  var _stopped = false;
+  document.getElementById('stopBtn').addEventListener('click', function() {
+    var btn = this;
+    if (!_stopped) {
+      // ポインターロック解除
+      if (document.exitPointerLock) document.exitPointerLock();
+      // キャンバスからフォーカスを外す
+      document.getElementById('canvas').blur();
+      // Emscripten メインループを一時停止
+      try {
+        if (typeof Module !== 'undefined' && Module.pauseMainLoop) {
+          Module.pauseMainLoop();
+          addLog('[停止] Emscripten メインループを一時停止しました', 'warn');
+        }
+      } catch(e) {}
+      // キャンバスのポインターイベントを無効化してボタンを操作可能に
+      document.getElementById('canvas').style.pointerEvents = 'none';
+      btn.textContent = '▶ 再開';
+      btn.style.background = '#103a10';
+      btn.style.color = '#a0ffa0';
+      _statusEl.textContent = '一時停止中';
+      _stopped = true;
+    } else {
+      // 再開
+      document.getElementById('canvas').style.pointerEvents = '';
+      document.getElementById('canvas').focus();
+      try {
+        if (typeof Module !== 'undefined' && Module.resumeMainLoop) {
+          Module.resumeMainLoop();
+          addLog('[再開] Emscripten メインループを再開しました', 'info');
+        }
+      } catch(e) {}
+      btn.textContent = '⏹ 停止';
+      btn.style.background = '#5a1010';
+      btn.style.color = '#ffa0a0';
+      _statusEl.textContent = '実行中';
+      _stopped = false;
+    }
+  });
+
+  // 再読み込みボタン
+  document.getElementById('reloadBtn').addEventListener('click', function() {
+    location.reload();
   });
 
   // console をキャプチャ
