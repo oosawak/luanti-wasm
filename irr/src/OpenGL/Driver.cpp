@@ -175,6 +175,7 @@ COpenGL3DriverBase::COpenGL3DriverBase(const SIrrlichtCreationParameters &params
 COpenGL3DriverBase::~COpenGL3DriverBase()
 {
 	QuadIndexVBO.destroy();
+	ClientVertexVBO.destroy();
 	JointTransformsUBO.destroy();
 
 	deleteMaterialRenders();
@@ -682,7 +683,7 @@ void COpenGL3DriverBase::drawVertexPrimitiveList(const void *vertices, u32 verte
 
 	setRenderStates3DMode();
 
-	drawGeneric(vertices, indexList, primitiveCount, vType, pType, iType);
+	drawGeneric(vertices, indexList, vertexCount, primitiveCount, vType, pType, iType);
 }
 
 //! draws a vertex primitive list in 2d
@@ -707,7 +708,7 @@ void COpenGL3DriverBase::draw2DVertexPrimitiveList(const void *vertices, u32 ver
 		Material.MaterialType == EMT_TRANSPARENT_ALPHA_CHANNEL
 	);
 
-	drawGeneric(vertices, indexList, primitiveCount, vType, pType, iType);
+	drawGeneric(vertices, indexList, vertexCount, primitiveCount, vType, pType, iType);
 }
 
 void COpenGL3DriverBase::draw2DImage(const video::ITexture *texture, const core::position2d<s32> &destPos,
@@ -979,30 +980,49 @@ void COpenGL3DriverBase::drawQuad(const VertexType &vertexType, const S3DVertex 
 	drawArrays(GL_TRIANGLE_FAN, vertexType, vertices, 4);
 }
 
+void COpenGL3DriverBase::bindClientVertexData(const void *vertices, size_t size)
+{
+	ClientVertexVBO.upload(vertices, size, 0, GL_STREAM_DRAW);
+	GL.BindBuffer(GL_ARRAY_BUFFER, ClientVertexVBO.getName());
+}
+
 void COpenGL3DriverBase::drawArrays(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount)
 {
-	beginDraw(vertexType, reinterpret_cast<uintptr_t>(vertices));
+	bindClientVertexData(vertices, vertexCount * vertexType.VertexSize);
+	beginDraw(vertexType, 0);
 	GL.DrawArrays(primitiveType, 0, vertexCount);
 	endDraw(vertexType);
+	GL.BindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void COpenGL3DriverBase::drawElements(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount, const u16 *indices, int indexCount)
 {
 	if (!indexCount || !vertexCount)
 		return;
-	beginDraw(vertexType, reinterpret_cast<uintptr_t>(vertices));
+	bindClientVertexData(vertices, vertexCount * vertexType.VertexSize);
+	beginDraw(vertexType, 0);
 	GL.DrawRangeElements(primitiveType, 0, vertexCount - 1, indexCount, GL_UNSIGNED_SHORT, indices);
 	endDraw(vertexType);
+	GL.BindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void COpenGL3DriverBase::drawGeneric(const void *vertices, const void *indexList,
-		u32 primitiveCount,
+		u32 vertexCount, u32 primitiveCount,
 		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType)
 {
 	if (!primitiveCount)
 		return;
 
 	auto &vTypeDesc = getVertexTypeDescription(vType);
+
+	// WebGL 2 does not support client-side vertex arrays. Upload to a VBO when needed.
+	bool boundClientVerts = false;
+	if (vertices) {
+		bindClientVertexData(vertices, vertexCount * vTypeDesc.VertexSize);
+		boundClientVerts = true;
+		vertices = nullptr;
+	}
+
 	beginDraw(vTypeDesc, reinterpret_cast<uintptr_t>(vertices));
 	GLenum indexSize = 0;
 
@@ -1048,6 +1068,9 @@ void COpenGL3DriverBase::drawGeneric(const void *vertices, const void *indexList
 	}
 
 	endDraw(vTypeDesc);
+
+	if (boundClientVerts)
+		GL.BindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void COpenGL3DriverBase::beginDraw(const VertexType &vertexType, uintptr_t verticesBase)
