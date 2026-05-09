@@ -7,6 +7,7 @@
 #pragma once
 
 #include "HWBuffer.h"
+#include "IIndexBuffer.h"
 #include "SIrrCreationParameters.h"
 #include "Common.h"
 #include "BufferObject.h"
@@ -44,7 +45,10 @@ public:
 
 	struct SHWBufferLink_opengl : public SHWBufferLink
 	{
-		SHWBufferLink_opengl(const scene::HWBuffer *buf) : SHWBufferLink(buf), Vbo(OGLBufferObject::TARGET_VBO) {}
+		SHWBufferLink_opengl(const scene::HWBuffer *buf) : SHWBufferLink(buf),
+			Vbo(dynamic_cast<const scene::IIndexBuffer*>(buf)
+				? OGLBufferObject::TARGET_IBO
+				: OGLBufferObject::TARGET_VBO) {}
 
 		OGLBufferObject Vbo;
 	};
@@ -353,7 +357,7 @@ private:
 
 	bool EnableErrorTest;
 
-	OGLBufferObject QuadIndexVBO = OGLBufferObject(OGLBufferObject::TARGET_VBO);
+	OGLBufferObject QuadIndexVBO = OGLBufferObject(OGLBufferObject::TARGET_IBO);
 	void initQuadsIndices(u32 max_vertex_count = 65536);
 
 	u16 MaxJointTransforms = 0;
