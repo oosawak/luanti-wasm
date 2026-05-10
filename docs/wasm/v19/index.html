@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luanti WASM v19</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
+    body { display: flex; flex-direction: column; font-family: monospace; color: #fff; }
+    #toolbar {
+      width: 100%; background: #111; padding: 10px 16px;
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid #333; flex-shrink: 0; z-index: 100; position: relative;
+    }
+    #toolbar a { color: #a0c4ff; text-decoration: none; font-size: 1rem; }
+    #toolbar span { color: #555; }
+    #toolbar strong { font-size: 1.1rem; }
+    #status { margin-left: auto; font-size: 0.95rem; color: #aaa; }
+    .tbtn {
+      background: #0f3460; color: #a0c4ff;
+      border: 1px solid #333; border-radius: 5px;
+      padding: 7px 16px; cursor: pointer; font-size: 0.95rem;
+    }
+    .tbtn:hover { background: #1a4a80; }
+    #canvas-container { flex: 1; position: relative; overflow: hidden; }
+    canvas#canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    #loading-overlay {
+      position: absolute; inset: 0; background: #1a1a2e;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      gap: 20px; z-index: 10;
+    }
+    #loading-overlay h2 { color: #a0c4ff; font-size: 1.7rem; }
+    #progress-bar { width: 360px; height: 10px; background: #0f3460; border-radius: 4px; overflow: hidden; }
+    #progress-fill { height: 100%; background: #e94560; border-radius: 4px; width: 0%; transition: width 0.3s; }
+    #progress-text { color: #aaa; font-size: 1.05rem; max-width: 400px; text-align: center; }
+    #log {
+      flex-shrink: 0; height: 160px; background: #1a1a1a;
+      border-bottom: 2px solid #444; padding: 6px 12px;
+      font-size: 0.78rem; color: #ccc; font-family: monospace;
+      resize: vertical; width: 100%; outline: none;
+      position: relative; z-index: 100; white-space: pre; overflow-y: scroll;
+    }
+  </style>
+</head>
+<body>
+
+<div id="toolbar">
+  <strong style="color:#fff;">🟦 Luanti WASM</strong>
+  <span>|</span>
+  <a href="../index.html">← 戻る</a>
+  <button id="copyBtn" class="tbtn">📋 ログをコピー</button>
+  <button id="dlBtn" class="tbtn">📥 ログを保存</button>
+  <button id="clearBtn" class="tbtn">🗑 ログ消去</button>
+  <button id="stopBtn" class="tbtn" style="background:#5a1010;color:#ffa0a0;border-color:#a00;"
+    title="ゲームを一時停止（F2）">⏹ 停止</button>
+  <button id="reloadBtn" class="tbtn" style="background:#0a3a10;color:#a0ffa0;border-color:#0a0;">🔄 再読み込み</button>
+  <div id="status">起動中...</div>
+</div>
+
+<textarea id="log" readonly></textarea>
+
+<div id="canvas-container">
+  <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+  <div id="loading-overlay">
+    <h2>🟦 Luanti を読み込んでいます</h2>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div id="progress-text">初期化中... (27MB のWASMとデータを読み込みます)</div>
+    <div id="load-timer" style="color:#666;font-size:0.85rem;margin-top:8px;">経過: 0秒</div>
+  </div>
+</div>
+
+<!-- FPS表示 -->
+<div id="fps-overlay" style="position:fixed;top:36px;right:8px;z-index:50;color:#0f0;
+  font:bold 13px monospace;text-shadow:1px 1px 3px #000;pointer-events:none;text-align:right;
+  line-height:1.6;display:none;">0 fps<br>0 draws/s</div>
+
+<script>
+  var _overlay      = document.getElementById('loading-overlay');
+  var _progressFill = document.getElementById('progress-fill');
+  var _progressText = document.getElementById('progress-text');
+  var _statusEl     = document.getElementById('status');
+  var _logEl        = document.getElementById('log');
+  var _logLines     = [];
+  var _timerEl      = document.getElementById('load-timer');
+  var _fpsEl        = document.getElementById('fps-overlay');
+  var _startTime    = Date.now();
+
+  // 経過タイマー
+  var _timerIv = setInterval(function() {
+    var s = Math.floor((Date.now() - _startTime) / 1000);
+    _timerEl.textContent = '経過: ' + s + '秒';
+    if (s > 60)  _timerEl.style.color = '#fa0';
+    if (s > 120) _timerEl.style.color = '#f44';
+  }, 1000);
+
+  function addLog(msg, cls) {
+    var now = new Date();
+    var ts = ('0'+now.getMinutes()).slice(-2)+':'+('0'+now.getSeconds()).slice(-2);
+    var prefix = '['+ts+'] ' + (cls === 'err' ? '[ERR] ' : cls === 'warn' ? '[WARN] ' : cls === 'info' ? '[INFO] ' : '');
+    var line = prefix + msg;
+    _logLines.push(line);
+    _logEl.value += line + '\n';
+    _logEl.scrollTop = _logEl.scrollHeight;
+  }
+
+  // console を全部キャプチャ（EM_ASM の console.log も取得）
+  var _origLog  = console.log;
+  var _origErr  = console.error;
+  var _origWarn = console.warn;
+  console.log = function() {
+    var msg = Array.prototype.slice.call(arguments).join(' ');
+    addLog(msg, null);
+    _origLog.apply(console, arguments);
+  };
+  console.error = function() {
+    var msg = Array.prototype.slice.call(arguments).join(' ');
+    addLog(msg, 'err');
+    _origErr.apply(console, arguments);
+  };
+  console.warn = function() {
+    var msg = Array.prototype.slice.call(arguments).join(' ');
+    addLog(msg, 'warn');
+    _origWarn.apply(console, arguments);
+  };
+
+  // キャンバスをコンテナサイズに合わせる（luanti.js 読み込み前）
+  (function() {
+    var canvas = document.getElementById('canvas');
+    var container = document.getElementById('canvas-container');
+    function sizeCanvas() {
+      var w = container.clientWidth, h = container.clientHeight;
+      if (w > 0 && h > 0 && (canvas.width !== w || canvas.height !== h)) {
+        canvas.width = w; canvas.height = h;
+        addLog('[canvas] リサイズ: ' + w + 'x' + h, 'info');
+      }
+    }
+    sizeCanvas();
+    window.addEventListener('resize', sizeCanvas);
+
+    // ポインターロックを無効化してUIボタンを常にクリック可能にする
+    canvas.requestPointerLock = function() {
+      addLog('[UI] ポインターロックを無効化しました', 'info');
+    };
+    var _origRPL = Element.prototype.requestPointerLock;
+    Element.prototype.requestPointerLock = function() {
+      if (this === canvas) return;
+      if (_origRPL) return _origRPL.call(this);
+    };
+  })();
+
+  // WebGL draw/clear カウンター（getContextをインターセプト）
+  var _drawCount = 0, _clearCount = 0;
+  (function() {
+    var _orig = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function(t, a) {
+      var ctx = _orig.call(this, t, a);
+      if (ctx && !ctx.__hooked && (t === 'webgl2' || t === 'webgl')) {
+        ctx.__hooked = true;
+        var de = ctx.drawElements; ctx.drawElements = function() { _drawCount++; return de.apply(this,arguments); };
+        var da = ctx.drawArrays;   ctx.drawArrays   = function() { _drawCount++; return da.apply(this,arguments); };
+        var cl = ctx.clear;        ctx.clear        = function() { _clearCount++; return cl.apply(this,arguments); };
+        addLog('[WebGL] コンテキスト取得+フック: ' + t, 'info');
+      }
+      return ctx;
+    };
+  })();
+
+  // FPS ループ
+  var _rafFrames = 0, _rafLast = performance.now();
+  (function loop(t) {
+    _rafFrames++;
+    if (t - _rafLast >= 1000) {
+      var fps = Math.round(_rafFrames * 1000 / (t - _rafLast));
+      var dps = Math.round(_drawCount  * 1000 / (t - _rafLast));
+      var cps = Math.round(_clearCount * 1000 / (t - _rafLast));
+      _fpsEl.innerHTML = fps + ' fps<br>' + dps + ' draws/s<br>' + cps + ' clears/s';
+      _fpsEl.style.color = dps > 0 ? '#0f0' : (cps > 0 ? '#fa0' : '#f44');
+      _rafFrames = 0; _drawCount = 0; _clearCount = 0; _rafLast = t;
+    }
+    requestAnimationFrame(loop);
+  })(performance.now());
+
+  // ログをクリップボードにコピー
+  document.getElementById('copyBtn').addEventListener('click', function() {
+    var btn = this;
+    var text = _logLines.join('\n');
+    if (!text) { btn.textContent = '(ログなし)'; setTimeout(function(){btn.textContent='📋 ログをコピー';},1500); return; }
+    navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text).then(function(){
+      btn.textContent = '✓ コピー済'; setTimeout(function(){ btn.textContent = '📋 ログをコピー'; }, 1500);
+    }).catch(function() { fallbackCopy(text, btn); }) : fallbackCopy(text, btn);
+    function fallbackCopy(t, b) {
+      var ta = document.createElement('textarea');
+      ta.value = t; ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+      document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      b.textContent = '✓ コピー済'; setTimeout(function(){ b.textContent = '📋 ログをコピー'; }, 1500);
+    }
+  });
+
+  // ログをファイルとしてダウンロード
+  document.getElementById('dlBtn').addEventListener('click', function() {
+    var text = _logLines.join('\n');
+    var blob = new Blob([text], {type: 'text/plain'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = 'luanti-log-v19-' + Date.now() + '.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', function() {
+    _logEl.value = ''; _logLines = [];
+  });
+
+  // 停止ボタン
+  var _stopped = false;
+  document.getElementById('stopBtn').addEventListener('click', function() {
+    var btn = this;
+    if (!_stopped) {
+      if (document.exitPointerLock) document.exitPointerLock();
+      document.getElementById('canvas').blur();
+      try { if (typeof Module !== 'undefined' && Module.pauseMainLoop) Module.pauseMainLoop(); } catch(e) {}
+      document.getElementById('canvas').style.pointerEvents = 'none';
+      btn.textContent = '▶ 再開'; btn.style.background = '#103a10'; btn.style.color = '#a0ffa0';
+      _statusEl.textContent = '一時停止中'; _stopped = true;
+      addLog('[停止] 一時停止しました（ログコピー可能）', 'warn');
+    } else {
+      document.getElementById('canvas').style.pointerEvents = '';
+      document.getElementById('canvas').focus();
+      try { if (typeof Module !== 'undefined' && Module.resumeMainLoop) Module.resumeMainLoop(); } catch(e) {}
+      btn.textContent = '⏹ 停止'; btn.style.background = '#5a1010'; btn.style.color = '#ffa0a0';
+      _statusEl.textContent = '実行中'; _stopped = false;
+      addLog('[再開] ゲームを再開しました', 'info');
+    }
+  });
+
+  document.getElementById('reloadBtn').addEventListener('click', function() { location.reload(); });
+
+  // F2 → 停止/再開
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'F2') { e.stopImmediatePropagation(); e.preventDefault(); document.getElementById('stopBtn').click(); }
+  }, true);
+
+  // Emscripten Module 定義
+  var Module = {
+    canvas: document.getElementById('canvas'),
+    locateFile: function(path) { return path; },
+
+    print: function(text) { addLog(text, 'info'); },
+    printErr: function(text) { addLog(text, 'err'); },
+
+    setStatus: function(text) {
+      if (!text) {
+        _overlay.style.display = 'none';
+        _statusEl.textContent = '実行中';
+        return;
+      }
+      var m = text.match(/\((\d+)\/(\d+)\)/);
+      if (m) {
+        var pct = Math.round(100 * parseInt(m[1]) / parseInt(m[2]));
+        _progressFill.style.width = pct + '%';
+        _progressText.textContent = 'ダウンロード中 ' + pct + '% — ' + m[1] + ' / ' + m[2] + ' bytes';
+        _statusEl.textContent = pct + '%';
+      } else {
+        _progressText.textContent = text;
+        _statusEl.textContent = text;
+      }
+      addLog('[status] ' + text, null);
+    },
+
+    monitorRunDependencies: function(left) {
+      if (left === 0) {
+        _progressFill.style.width = '100%';
+        _progressText.textContent = '起動中...';
+        addLog('[deps] 全ファイル読み込み完了', 'info');
+      } else if (left % 20 === 0) {
+        addLog('[deps remaining] ' + left, null);
+      }
+    },
+
+    onRuntimeInitialized: function() {
+      var elapsed = Math.floor((Date.now() - _startTime) / 1000);
+      addLog('[runtime] WASM 初期化完了 (' + elapsed + '秒) — C++起動中', 'info');
+      var c = document.getElementById('canvas');
+      addLog('[canvas] ' + c.clientWidth + 'x' + c.clientHeight + ' (CSS) ' + c.width + 'x' + c.height + ' (px)', 'info');
+      clearInterval(_timerIv);
+      _overlay.style.display = 'none';
+      _fpsEl.style.display = 'block';
+      _statusEl.textContent = 'C++ 実行中';
+    },
+
+    onAbort: function(reason) {
+      addLog('[ABORT] ' + reason, 'err');
+      _statusEl.textContent = 'ABORT';
+    }
+  };
+
+  window.addEventListener('error', function(e) {
+    addLog('[JS ERROR] ' + e.message + ' (' + e.filename + ':' + e.lineno + ')', 'err');
+    _statusEl.textContent = 'エラー';
+  });
+  window.addEventListener('unhandledrejection', function(e) {
+    addLog('[Promise Error] ' + String(e.reason), 'err');
+  });
+
+  addLog('Luanti WASM v19 — 起動中...', 'info');
+
+  // luanti.js を動的に読み込む
+  var s = document.createElement('script');
+  s.src = 'luanti.js';
+  s.onerror = function() {
+    addLog('[ERROR] luanti.js の読み込みに失敗しました', 'err');
+    _progressText.textContent = 'luanti.js 読み込み失敗';
+    _statusEl.textContent = 'エラー';
+  };
+  document.body.appendChild(s);
+</script>
+</body>
+</html>
