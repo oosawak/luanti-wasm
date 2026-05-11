@@ -199,6 +199,9 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 
 	// Initialize scripting
 	infostream << "GUIEngine: Initializing Lua" << std::endl;
+#ifdef __EMSCRIPTEN__
+	EM_ASM({ console.log("[C++] GUIEngine: Initializing Lua scripting"); });
+#endif
 	try {
 		m_script = std::make_unique<MainMenuScripting>(this);
 	} catch (ModError &e) {
@@ -211,12 +214,20 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 		m_script->setMainMenuData(&m_data->script_data);
 		m_data->script_data.errormessage.clear();
 
+#ifdef __EMSCRIPTEN__
+		EM_ASM({ console.log("[C++] GUIEngine: Loading main menu script"); });
+#endif
 		if (!loadMainMenuScript()) {
 			report_fatal_error();
 			return;
 		}
-
+#ifdef __EMSCRIPTEN__
+		EM_ASM({ console.log("[C++] GUIEngine: Script loaded, starting run() loop"); });
+#endif
 		run();
+#ifdef __EMSCRIPTEN__
+		EM_ASM({ console.log("[C++] GUIEngine: run() loop exited"); });
+#endif
 	} catch (ModError &e) {
 		errorstream << "Main menu error: " << e.what() << std::endl;
 		m_data->script_data.errormessage = e.what();

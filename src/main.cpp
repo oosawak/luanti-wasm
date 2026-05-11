@@ -135,7 +135,13 @@ int main(int argc, char *argv[])
 	debug_set_exception_handler();
 
 	g_logger.registerThread("Main");
+#ifdef __EMSCRIPTEN__
+	// In WASM, route all log levels to stderr so they appear in the browser log.
+	g_logger.addOutputMaxLevel(&stderr_output, LL_INFO);
+	EM_ASM({ console.log("[C++] main() started"); });
+#else
 	g_logger.addOutputMaxLevel(&stderr_output, LL_ACTION);
+#endif
 
 	porting::osSpecificInit();
 
@@ -282,7 +288,13 @@ int main(int argc, char *argv[])
 		return run_dedicated_server(game_params, cmd_args) ? 0 : 1;
 
 #if CHECK_CLIENT_BUILD()
+#ifdef __EMSCRIPTEN__
+	EM_ASM({ console.log("[C++] Starting ClientLauncher::run()"); });
+#endif
 	retval = ClientLauncher().run(game_params, cmd_args) ? 0 : 1;
+#ifdef __EMSCRIPTEN__
+	EM_ASM({ console.log("[C++] ClientLauncher::run() returned"); });
+#endif
 #else
 	retval = 0;
 #endif

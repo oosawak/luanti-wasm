@@ -986,6 +986,14 @@ void COpenGL3DriverBase::bindClientVertexData(const void *vertices, size_t size)
 	GL.BindBuffer(GL_ARRAY_BUFFER, ClientVertexVBO.getName());
 }
 
+void COpenGL3DriverBase::bindClientIndexData(const void *indices, size_t size)
+{
+	// Upload client-side indices to the ClientIndexVBO and bind it as the
+	// element array buffer so DrawElements can use offset nullptr (0) as base.
+	ClientIndexVBO.upload(indices, size, 0, GL_STREAM_DRAW);
+	GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, ClientIndexVBO.getName());
+}
+
 void COpenGL3DriverBase::drawArrays(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount)
 {
 	bindClientVertexData(vertices, vertexCount * vertexType.VertexSize);
@@ -1001,7 +1009,9 @@ void COpenGL3DriverBase::drawElements(GLenum primitiveType, const VertexType &ve
 		return;
 	bindClientVertexData(vertices, vertexCount * vertexType.VertexSize);
 	beginDraw(vertexType, 0);
-	GL.DrawRangeElements(primitiveType, 0, vertexCount - 1, indexCount, GL_UNSIGNED_SHORT, indices);
+	// Use DrawElements (GLES2-compatible) instead of DrawRangeElements (GLES3-only).
+	// When indices == nullptr, the bound GL_ELEMENT_ARRAY_BUFFER is used at offset 0.
+	GL.DrawElements(primitiveType, indexCount, GL_UNSIGNED_SHORT, indices);
 	endDraw(vertexType);
 	GL.BindBuffer(GL_ARRAY_BUFFER, 0);
 }
@@ -1035,37 +1045,52 @@ void COpenGL3DriverBase::drawGeneric(const void *vertices, const void *indexList
 		break;
 	}
 
-	// When using client-side index data (non-null pointer), ensure no element
-	// array buffer is bound — a stale binding would cause WebGL assertion failures.
-	if (indexList)
-		GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	// If client-side index data is provided, upload it to ClientIndexVBO and bind
+	// it as GL_ELEMENT_ARRAY_BUFFER. WebGL does not allow client-side element
+	// arrays, so this ensures DrawElements uses a bound IBO with offset 0.
+	bool boundClientIndexes = false;
 
 	switch (pType) {
 	case scene::EPT_POINTS:
 	case scene::EPT_POINT_SPRITES:
 		GL.DrawArrays(GL_POINTS, 0, primitiveCount);
 		break;
-	case scene::EPT_LINE_STRIP:
-		GL.DrawElements(GL_LINE_STRIP, primitiveCount + 1, indexSize, indexList);
-		break;
-	case scene::EPT_LINE_LOOP:
-		GL.DrawElements(GL_LINE_LOOP, primitiveCount, indexSize, indexList);
-		break;
-	case scene::EPT_LINES:
-		GL.DrawElements(GL_LINES, primitiveCount * 2, indexSize, indexList);
-		break;
-	case scene::EPT_TRIANGLE_STRIP:
-		GL.DrawElements(GL_TRIANGLE_STRIP, primitiveCount + 2, indexSize, indexList);
-		break;
-	case scene::EPT_TRIANGLE_FAN:
-		GL.DrawElements(GL_TRIANGLE_FAN, primitiveCount + 2, indexSize, indexList);
-		break;
-	case scene::EPT_TRIANGLES:
-		GL.DrawElements(GL_TRIANGLES, primitiveCount * 3, indexSize, indexList);
-		break;
+	case scene::EPT_LINE_STRIP: {
+		int count = primitiveCount + 1;
+		if (indexList) { bindClientIndexData(indexList, count * (indexSize == GL_UNSIGNED_SHORT ? sizeof(u16) : sizeof(u32))); boundClientIndexes = true; }
+		GL.DrawElements(GL_LINE_STRIP, count, indexSize, indexList ? nullptr : indexList);
+		break; }
+	case scene::EPT_LINE_LOOP: {
+		int count = primitiveCount;
+		if (indexList) { bindClientIndexData(indexList, count * (indexSize == GL_UNSIGNED_SHORT ? sizeof(u16) : sizeof(u32))); boundClientIndexes = true; }
+		GL.DrawElements(GL_LINE_LOOP, count, indexSize, indexList ? nullptr : indexList);
+		break; }
+	case scene::EPT_LINES: {
+		int count = primitiveCount * 2;
+		if (indexList) { bindClientIndexData(indexList, count * (indexSize == GL_UNSIGNED_SHORT ? sizeof(u16) : sizeof(u32))); boundClientIndexes = true; }
+		GL.DrawElements(GL_LINES, count, indexSize, indexList ? nullptr : indexList);
+		break; }
+	case scene::EPT_TRIANGLE_STRIP: {
+		int count = primitiveCount + 2;
+		if (indexList) { bindClientIndexData(indexList, count * (indexSize == GL_UNSIGNED_SHORT ? sizeof(u16) : sizeof(u32))); boundClientIndexes = true; }
+		GL.DrawElements(GL_TRIANGLE_STRIP, count, indexSize, indexList ? nullptr : indexList);
+		break; }
+	case scene::EPT_TRIANGLE_FAN: {
+		int count = primitiveCount + 2;
+		if (indexList) { bindClientIndexData(indexList, count * (indexSize == GL_UNSIGNED_SHORT ? sizeof(u16) : sizeof(u32))); boundClientIndexes = true; }
+		GL.DrawElements(GL_TRIANGLE_FAN, count, indexSize, indexList ? nullptr : indexList);
+		break; }
+	case scene::EPT_TRIANGLES: {
+		int count = primitiveCount * 3;
+		if (indexList) { bindClientIndexData(indexList, count * (indexSize == GL_UNSIGNED_SHORT ? sizeof(u16) : sizeof(u32))); boundClientIndexes = true; }
+		GL.DrawElements(GL_TRIANGLES, count, indexSize, indexList ? nullptr : indexList);
+		break; }
 	default:
 		break;
 	}
+
+	if (boundClientIndexes)
+		GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	endDraw(vTypeDesc);
 

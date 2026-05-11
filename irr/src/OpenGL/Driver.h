@@ -303,8 +303,11 @@ protected:
 	void drawArrays(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount);
 	void drawElements(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount, const u16 *indices, int indexCount);
 
-	void drawGeneric(const void *vertices, const void *indexList, u32 primitiveCount,
+	void drawGeneric(const void *vertices, const void *indexList, u32 vertexCount, u32 primitiveCount,
 		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType);
+
+	/// Upload client-side vertex data to ClientVertexVBO and bind it to GL_ARRAY_BUFFER.
+	void bindClientVertexData(const void *vertices, size_t size);
 
 	void beginDraw(const VertexType &vertexType, uintptr_t verticesBase);
 	void endDraw(const VertexType &vertexType);
@@ -358,7 +361,13 @@ private:
 	bool EnableErrorTest;
 
 	OGLBufferObject QuadIndexVBO = OGLBufferObject(OGLBufferObject::TARGET_IBO);
+	OGLBufferObject ClientVertexVBO = OGLBufferObject(OGLBufferObject::TARGET_VBO);
+	// Buffer object for client-side index uploads (WebGL doesn't allow client-side element arrays)
+	OGLBufferObject ClientIndexVBO = OGLBufferObject(OGLBufferObject::TARGET_IBO);
 	void initQuadsIndices(u32 max_vertex_count = 65536);
+
+	/// Upload client-side index data to ClientIndexVBO and bind it to GL_ELEMENT_ARRAY_BUFFER.
+	void bindClientIndexData(const void *indices, size_t size);
 
 	u16 MaxJointTransforms = 0;
 	void initMaxJointTransforms();

@@ -31,6 +31,10 @@
 	#include "sound/sound_openal.h"
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 /* mainmenumanager.h
  */
 gui::IGUIEnvironment *guienv = nullptr;
@@ -99,6 +103,9 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 {
 	init_args(start_data, cmd_args);
 
+#ifdef __EMSCRIPTEN__
+	EM_ASM({ console.log("[C++] ClientLauncher::run() - calling init_engine()"); });
+#endif
 	try {
 		init_engine();
 	} catch (BaseException &e) {
@@ -106,6 +113,9 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 		RenderingEngine::showErrorMessageBox(e.what());
 		return false;
 	}
+#ifdef __EMSCRIPTEN__
+	EM_ASM({ console.log("[C++] init_engine() succeeded"); });
+#endif
 
 	sanity_check(m_rendering_engine->get_video_driver() != nullptr);
 
@@ -182,6 +192,10 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 
 	while (m_rendering_engine->run() && !*kill &&
 		!g_gamecallback->shutdown_requested) {
+#ifdef __EMSCRIPTEN__
+		// Safety yield: if main menu loop exits without sleeping, give browser time
+		emscripten_sleep(1);
+#endif
 		// Set the window caption
 		auto driver_name = m_rendering_engine->getVideoDriver()->getName();
 		std::string caption = std::string(PROJECT_NAME_C) +
@@ -457,7 +471,13 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		menudata.script_data.errormessage        = std::move(error_message_lua);
 		menudata.script_data.reconnect_requested = reconnect_requested;
 
+#ifdef __EMSCRIPTEN__
+		EM_ASM({ console.log("[C++] Calling main_menu() / GUIEngine"); });
+#endif
 		main_menu(&menudata);
+#ifdef __EMSCRIPTEN__
+		EM_ASM({ console.log("[C++] main_menu() returned"); });
+#endif
 
 		// Skip further loading if there was an exit signal.
 		if (!m_rendering_engine->run() || *porting::signal_handler_killstatus())

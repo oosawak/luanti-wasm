@@ -199,15 +199,22 @@ else()
 	message(STATUS "Found SDL2: ${SDL2_LIBRARIES}")
 
 	# unfortunately older SDL does not provide its version to cmake, so check header.
-	set(CMAKE_REQUIRED_INCLUDES ${SDL2_INCLUDE_DIRS})
-	unset(CHECK_SDL_VERSION CACHE)
-	check_cxx_source_compiles("#include <SDL_version.h>\n\
+	# For Emscripten builds, skip the strict SDL2 version check because the
+	# sysroot-provided SDL may not advertise versions even though the API is
+	# compatible enough for our use-case.
+	if(NOT EMSCRIPTEN)
+		set(CMAKE_REQUIRED_INCLUDES ${SDL2_INCLUDE_DIRS})
+		unset(CHECK_SDL_VERSION CACHE)
+		check_cxx_source_compiles("#include <SDL_version.h>\n\
 #if !SDL_VERSION_ATLEAST(2, 0, 10)\n\
 #error\n\
 #endif\n\
 int main() {}" CHECK_SDL_VERSION)
-	if(NOT CHECK_SDL_VERSION)
-		message(FATAL_ERROR "SDL2 is too old, required is at least 2.0.10!")
+		if(NOT CHECK_SDL_VERSION)
+			message(FATAL_ERROR "SDL2 is too old, required is at least 2.0.10!")
+		endif()
+	else()
+		message(STATUS "EMSCRIPTEN build: skipping SDL2 version check")
 	endif()
 
 	# ...no target either.

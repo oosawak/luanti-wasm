@@ -90,6 +90,11 @@ void Semaphore::wait()
 {
 #ifdef _WIN32
 	WaitForSingleObject(semaphore, INFINITE);
+#elif defined(__EMSCRIPTEN__)
+	// Emscripten single-threaded: sem_wait blocks forever because other threads
+	// cannot run. Poll with emscripten_sleep(1) to yield to the browser event loop.
+	while (sem_trywait(&semaphore) != 0)
+		emscripten_sleep(1);
 #else
 	int ret = sem_wait(&semaphore);
 	assert(!ret);

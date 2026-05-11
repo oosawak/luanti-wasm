@@ -36,6 +36,16 @@
 
 	#define setenv(n,v,o) _putenv_s(n,v)
 	#define unsetenv(n) _putenv_s(n,"")
+#elif defined(__EMSCRIPTEN__)
+	#include <unistd.h>
+	#include <cstdlib>
+	#include <emscripten.h>
+
+	#define SLEEP_ACCURACY_US 1000
+
+	// emscripten_sleep yields to the browser event loop (required for ASYNCIFY)
+	#define sleep_ms(x) emscripten_sleep(x)
+	#define sleep_us(x) emscripten_sleep((x)/1000)
 #else
 	#include <unistd.h>
 	#include <cstdlib> // setenv
@@ -231,6 +241,11 @@ inline void preciseSleepUs(u64 sleep_time)
 {
 	if (sleep_time > 0)
 	{
+#ifdef __EMSCRIPTEN__
+		// Busy-waiting blocks the browser's event loop in single-threaded WASM.
+		// emscripten_sleep (via sleep_us) yields control back to the browser properly.
+		sleep_us(sleep_time);
+#else
 		u64 target_time = porting::getTimeUs() + sleep_time;
 		if (sleep_time > SLEEP_ACCURACY_US)
 			sleep_us(sleep_time - SLEEP_ACCURACY_US);
@@ -239,6 +254,7 @@ inline void preciseSleepUs(u64 sleep_time)
 		// The target - now > 0 construct will handle overflow gracefully (even though it should
 		// never happen)
 		while ((s64)(target_time - porting::getTimeUs()) > 0) {}
+#endif
 	}
 }
 
