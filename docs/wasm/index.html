@@ -118,6 +118,23 @@
     _logEl.scrollTop = _logEl.scrollHeight;
   }
 
+  // DPR clamp helper
+  function adjustCanvas() {
+    var c = document.getElementById('canvas');
+    if (!c) return;
+    var cssW = c.clientWidth || c.width || window.innerWidth;
+    var cssH = c.clientHeight || c.height || window.innerHeight;
+    var rawDpr = window.devicePixelRatio || 1;
+    var dpr = Math.min(rawDpr, 2);
+    var w = Math.max(1, Math.floor(cssW * dpr));
+    var h = Math.max(1, Math.floor(cssH * dpr));
+    if (c.width !== w || c.height !== h) {
+      c.width = w; c.height = h;
+      addLog('[input] devicePixelRatio: ' + rawDpr + ' (clamped:' + dpr + ') canvas: ' + w + 'x' + h, 'info');
+      try { window.dispatchEvent(new Event('resize')); } catch(e){}
+    }
+  }
+
   // Module をグローバルに定義（luanti.js が読み込む前に設定）
   var Module = {
     canvas: (function() {
@@ -126,16 +143,11 @@
     })(),
 
     locateFile: function(path) {
-      // luanti.wasm は同じディレクトリ
       return path;
     },
 
-    print: function(text) {
-      addLog(text, 'info');
-    },
-    printErr: function(text) {
-      addLog(text, 'err');
-    },
+    print: function(text) { addLog(text, 'info'); },
+    printErr: function(text) { addLog(text, 'err'); },
 
     setStatus: function(text) {
       if (!text) {
@@ -166,10 +178,18 @@
 
     onRuntimeInitialized: function() {
       addLog('[runtime] 初期化完了', 'info');
+      // ensure canvas is sized for DPR
+      adjustCanvas();
       _overlay.style.display = 'none';
       _statusEl.textContent = '実行中';
     }
   };
+
+  // keep canvas size responsive
+  window.addEventListener('resize', function(){ adjustCanvas(); });
+  if (window.ResizeObserver) new ResizeObserver(function(){ adjustCanvas(); }).observe(document.getElementById('canvas'));
+  setTimeout(adjustCanvas, 0);
+
 
   window.addEventListener('error', function(e) {
     addLog('ERROR: ' + e.message + ' (' + e.filename + ':' + e.lineno + ')', 'err');
