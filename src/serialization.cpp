@@ -7,7 +7,9 @@
 #include "util/serialize.h"
 
 #include <zlib.h>
+#ifndef __EMSCRIPTEN__
 #include <zstd.h>
+#endif
 #include <memory>
 
 /* report a zlib or i/o error */
@@ -176,6 +178,7 @@ void decompressZlib(std::istream &is, std::ostream &os, size_t limit)
 	}
 }
 
+#ifndef __EMSCRIPTEN__
 struct ZSTD_Deleter {
 	void operator() (ZSTD_CStream* cstream) {
 		ZSTD_freeCStream(cstream);
@@ -271,15 +274,28 @@ void decompressZstd(std::istream &is, std::ostream &os)
 			throw SerializationError("decompressZstd: unget failed");
 	}
 }
+#else
+void compressZstd(const u8 *data, size_t data_size, std::ostream &os, int level)
+{
+	throw SerializationError("ZSTD compression is not supported on Emscripten");
+}
+
+void decompressZstd(std::istream &is, std::ostream &os)
+{
+	throw SerializationError("ZSTD decompression is not supported on Emscripten");
+}
+#endif
 
 void compress(const u8 *data, u32 size, std::ostream &os, u8 version, int level)
 {
+#ifndef __EMSCRIPTEN__
 	if(version >= 29)
 	{
 		// map the zlib levels [0,9] to [1,10]. -1 becomes 0 which indicates the default (currently 3)
 		compressZstd(data, size, os, level + 1);
 		return;
 	}
+#endif
 
 	if(version >= 11)
 	{
@@ -324,11 +340,13 @@ void compress(const u8 *data, u32 size, std::ostream &os, u8 version, int level)
 
 void decompress(std::istream &is, std::ostream &os, u8 version)
 {
+#ifndef __EMSCRIPTEN__
 	if(version >= 29)
 	{
 		decompressZstd(is, os);
 		return;
 	}
+#endif
 
 	if(version >= 11)
 	{

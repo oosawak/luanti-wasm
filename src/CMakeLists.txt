@@ -269,6 +269,8 @@ if(NOT EMSCRIPTEN)
   find_package(Zstd REQUIRED)
 else()
   message(STATUS "EMSCRIPTEN build: skipping Zstd detection")
+  set(ZSTD_LIBRARY "")
+  set(ZSTD_INCLUDE_DIR "")
 endif()
 
 

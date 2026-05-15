@@ -96,11 +96,6 @@ public:
 
 	void blitRenderTarget(IRenderTarget *from, IRenderTarget *to) override;
 
-	//! draws a vertex primitive list
-	virtual void drawVertexPrimitiveList(const void *vertices, u32 vertexCount,
-			const void *indexList, u32 primitiveCount,
-			E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType) override;
-
 	//! draws a vertex primitive list in 2d
 	virtual void draw2DVertexPrimitiveList(const void *vertices, u32 vertexCount,
 			const void *indexList, u32 primitiveCount,
@@ -154,11 +149,6 @@ public:
 	//! Draws a 2d line.
 	virtual void draw2DLine(const core::position2d<s32> &start,
 			const core::position2d<s32> &end,
-			SColor color = SColor(255, 255, 255, 255)) override;
-
-	//! Draws a 3d line.
-	virtual void draw3DLine(const core::vector3df &start,
-			const core::vector3df &end,
 			SColor color = SColor(255, 255, 255, 255)) override;
 
 	//! \return Returns the name of the video driver. Example: In case of the Direct3D8
@@ -325,13 +315,6 @@ private:
 	//! \param[in] lightIndex: the index of the requesting light
 	void assignHardwareLight(u32 lightIndex);
 
-	//! helper function for render setup.
-	void getColorBuffer(const void *vertices, u32 vertexCount, E_VERTEX_TYPE vType);
-
-	//! helper function doing the actual rendering.
-	void renderArray(const void *indexList, u32 primitiveCount,
-			scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType);
-
 	//! Same as `CacheHandler->setViewport`, but also sets `ViewPort`
 	virtual void setViewPortRaw(u32 width, u32 height);
 
@@ -339,7 +322,6 @@ private:
 
 	core::stringc Name;
 	core::matrix4 Matrices[ETS_COUNT];
-	core::array<u8> ColorBuffer;
 
 	//! enumeration for rendering modes such as 2d and 3d for minimizing the switching of renderStates.
 	enum E_RENDER_MODE
