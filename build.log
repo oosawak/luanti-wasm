@@ -1,0 +1,435 @@
+==========================================
+Luanti Emscripten WASM Build
+==========================================
+Root: /mnt/nfs/Workspace/luanti-wasm
+Build Dir: /mnt/nfs/Workspace/luanti-wasm/build-emscripten
+
+✓ Emscripten SDK: /home/oosawak/.emsdk
+
+📦 Configuring CMake...
+emcmake: cmake /mnt/nfs/Workspace/luanti-wasm -DCMAKE_TOOLCHAIN_FILE=/mnt/nfs/Workspace/luanti-wasm/emscripten/CMakeToolchain.cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_CLIENT=ON -DBUILD_SERVER=OFF -DBUILD_UNITTESTS=OFF -DBUILD_BENCHMARKS=OFF -DENABLE_SOUND=ON -DENABLE_CURL=OFF -DENABLE_GETTEXT=OFF -DCMAKE_CROSSCOMPILING_EMULATOR=/home/oosawak/.emsdk/node/22.16.0_64bit/bin/node in directory /mnt/nfs/Workspace/luanti-wasm/build-emscripten
+-- Emscripten CMake Toolchain Loaded
+--   WASM Build: YES
+--   SDL2 Support: YES
+--   OpenGL → WebGL: Auto
+--   Memory: 512 MB → 2 GB
+--   Sysroot: /home/oosawak/.emsdk/upstream/emscripten/cache/sysroot
+-- Emscripten CMake Toolchain Loaded
+--   WASM Build: YES
+--   SDL2 Support: YES
+--   OpenGL → WebGL: Auto
+--   Memory: 512 MB → 2 GB
+--   Sysroot: /home/oosawak/.emsdk/upstream/emscripten/cache/sysroot
+-- The C compiler identification is Clang 23.0.0
+-- The CXX compiler identification is Clang 23.0.0
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Detecting C compiler ABI info
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /home/oosawak/.emsdk/upstream/emscripten/emcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /home/oosawak/.emsdk/upstream/emscripten/em++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- *** Will build version 5.16.0-dev ***
+-- BUILD_CLIENT: ON
+-- BUILD_SERVER: OFF
+-- BUILD_UNITTESTS: OFF
+-- BUILD_BENCHMARKS: OFF
+-- BUILD_DOCUMENTATION: OFF
+-- RUN_IN_PLACE: OFF
+-- Performing Test SUPPORTS_W_MISMATCHED_TAGS
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Performing Test SUPPORTS_W_MISMATCHED_TAGS - Success
+-- Skipping TEST_BIG_ENDIAN for Emscripten (always little-endian)
+-- OpenGL (legacy): FALSE
+-- OpenGL 3: ON
+-- OpenGL ES 2: ON
+-- Found ZLIB: /home/oosawak/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a (found version "1.3.1")  
+-- Found JPEG: /home/oosawak/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libjpeg.a (found version "90") 
+-- Found PNG: /home/oosawak/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a (found version "1.6.55") 
+-- Found SDL2: -sUSE_SDL=2
+-- Performing Test CHECK_SDL_VERSION
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Performing Test CHECK_SDL_VERSION - Success
+-- LTO/IPO is not enabled
+-- Detecting GMP from system failed.
+-- Using bundled mini-gmp library.
+-- Found GMP: gmp  
+-- Using bundled JsonCpp library.
+-- Found Json: jsoncpp (Required is at least version "1.0.0") 
+-- LuaJIT detection disabled! (ENABLE_LUAJIT=0)
+-- LuaJIT not found, using bundled Lua.
+-- Looking for include file endian.h
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Looking for include file endian.h - found
+-- Check size of int
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Check size of int - done
+-- Looking for C++ include sys/types.h
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Looking for C++ include sys/types.h - found
+-- Looking for C++ include stdint.h
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Looking for C++ include stdint.h - found
+-- Looking for C++ include stddef.h
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Looking for C++ include stddef.h - found
+-- Check size of size_t
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Check size of size_t - done
+CMake Warning at src/CMakeLists.txt:86 (message):
+  cURL is required to use the server list, content browser or update checker
+
+
+-- GetText disabled.
+-- Found Freetype: /home/oosawak/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libfreetype.a  
+-- Found SQLite3: /home/oosawak/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libsqlite3.a  
+-- Prometheus client disabled.
+-- SpatialIndex not found!
+-- Could NOT find OpenSSL, try to set the path to OpenSSL root folder in the system variable OPENSSL_ROOT_DIR (missing: OPENSSL_CRYPTO_LIBRARY OPENSSL_INCLUDE_DIR) (Required is at least version "3.0")
+-- OpenSSL not found!
+-- Looking for ZSTD_initCStream
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Looking for ZSTD_initCStream - not found
+-- Could NOT find Zstd (missing: ZSTD_LIBRARY ZSTD_INCLUDE_DIR) 
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Looking for clock_gettime in rt
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Looking for clock_gettime in rt - found
+-- Performing Test HAVE_LINK_ATOMIC
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Performing Test HAVE_LINK_ATOMIC - Failed
+-- Looking for strlcpy
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Looking for strlcpy - found
+-- Performing Test HAVE_ATCCALL
+System is unknown to cmake, create:
+Platform/Emscripten to use this system, please post your config file on discourse.cmake.org so it can be added to cmake
+-- Performing Test HAVE_ATCCALL - Success
+-- Configuring done (14.4s)
+-- Generating done (1.4s)
+-- Build files have been written to: /mnt/nfs/Workspace/luanti-wasm/build-emscripten
+
+🔨 Building...
+emmake: "make -j24 luanti" in "/mnt/nfs/Workspace/luanti-wasm/build-emscripten"
+[  0%] Building CXX object irr/src/CMakeFiles/IRRIOOBJ.dir/CFileList.cpp.obj
+[  0%] Building CXX object lib/bitop/CMakeFiles/bitop.dir/bit.cpp.obj
+[  0%] Built target tiniergltf
+[  0%] Building C object lib/sha256/CMakeFiles/sha256.dir/sha256.c.obj
+[  0%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUIButton.cpp.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRRIOOBJ.dir/CZipReader.cpp.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUIEnvironment.cpp.obj
+[  3%] Building C object lib/lstrpack/CMakeFiles/lstrpack.dir/lstrpack.c.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRRVIDEOOBJ.dir/CEGLManager.cpp.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUIEditBox.cpp.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRRIOOBJ.dir/CLimitReadFile.cpp.obj
+[  3%] Building CXX object lib/jsoncpp/CMakeFiles/jsoncpp.dir/jsoncpp.cpp.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRRIOOBJ.dir/CFileSystem.cpp.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRRIOOBJ.dir/CWriteFile.cpp.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRROTHEROBJ.dir/CIrrDeviceSDL.cpp.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRRIOOBJ.dir/CReadFile.cpp.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRRIOOBJ.dir/CMemoryFile.cpp.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRRVIDEOOBJ.dir/CNullDriver.cpp.obj
+[  3%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lapi.c.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUICheckBox.cpp.obj
+[  3%] Building C object lib/gmp/CMakeFiles/gmp.dir/mini-gmp.c.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRROTHEROBJ.dir/CLogger.cpp.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUIComboBox.cpp.obj
+[  3%] Building CXX object irr/src/CMakeFiles/IRROTHEROBJ.dir/CIrrDeviceStub.cpp.obj
+-- *** Detected Git version 5.16.0-dev-7f9e628-dirty ***
+[  3%] Built target GenerateVersion
+[  3%] Building CXX object irr/src/CMakeFiles/IRROTHEROBJ.dir/COSOperator.cpp.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[  4%] Linking CXX static library libbitop.a
+/mnt/nfs/Workspace/luanti-wasm/lib/lua/src/lapi.c:33:12: warning: unused variable 'lua_ident' [-Wunused-const-variable]
+   33 | const char lua_ident[] =
+      |            ^~~~~~~~~
+[  4%] Linking C static library liblstrpack.a
+[  5%] Linking C static library libsha256.a
+1 warning generated.
+[  6%] Built target bitop
+[  6%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lauxlib.c.obj
+[  6%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lbaselib.c.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[  6%] Built target lstrpack
+[  7%] Building CXX object irr/src/CMakeFiles/IRRVIDEOOBJ.dir/CSDLManager.cpp.obj
+[  7%] Built target sha256
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[  8%] Building CXX object irr/src/CMakeFiles/IRROTHEROBJ.dir/Irrlicht.cpp.obj
+/mnt/nfs/Workspace/luanti-wasm/lib/lua/src/lauxlib.c:577:61: warning: while loop has empty body [-Wempty-body]
+  577 |    while ((c = getc(lf.f)) != EOF && c != LUA_SIGNATURE[0]) ;
+      |                                                             ^
+/mnt/nfs/Workspace/luanti-wasm/lib/lua/src/lauxlib.c:577:61: note: put the semicolon on a separate line to silence this warning
+1 warning generated.
+[  8%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lcode.c.obj
+[  8%] Building CXX object irr/src/CMakeFiles/IRROTHEROBJ.dir/os.cpp.obj
+[  8%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUIFileOpenDialog.cpp.obj
+[  8%] Building CXX object irr/src/CMakeFiles/IRRVIDEOOBJ.dir/mt_opengl_loader.cpp.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[  9%] Building CXX object irr/src/CMakeFiles/IRRMESHOBJ.dir/WeightBuffer.cpp.obj
+[  9%] Building CXX object irr/src/CMakeFiles/IRRMESHOBJ.dir/SkinnedMesh.cpp.obj
+[ 10%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUIFont.cpp.obj
+[ 10%] Building CXX object irr/src/CMakeFiles/IRRVIDEOOBJ.dir/HWBuffer.cpp.obj
+[ 10%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/ldblib.c.obj
+[ 11%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/ldebug.c.obj
+[ 11%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUIImage.cpp.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 11%] Building CXX object irr/src/CMakeFiles/IRRMESHOBJ.dir/CMeshSceneNode.cpp.obj
+[ 11%] Building CXX object irr/src/CMakeFiles/IRRVIDEOOBJ.dir/OpenGL/Driver.cpp.obj
+[ 12%] Building CXX object irr/src/CMakeFiles/IRRVIDEOOBJ.dir/OpenGL/ExtensionHandler.cpp.obj
+[ 12%] Building CXX object irr/src/CMakeFiles/IRRVIDEOOBJ.dir/OpenGL/FixedPipelineRenderer.cpp.obj
+[ 12%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/ldo.c.obj
+/mnt/nfs/Workspace/luanti-wasm/irr/src/CIrrDeviceSDL.cpp:634:3: warning: 'emscripten_set_canvas_size' is deprecated: This variant does not allow specifying the target canvas [-Wdeprecated-declarations]
+  634 |                 emscripten_set_canvas_size(Width, Height);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                 Use emscripten_set_canvas_element_size() instead
+/home/oosawak/.emsdk/upstream/emscripten/cache/sysroot/include/emscripten/emscripten.h:91:71: note: 'emscripten_set_canvas_size' has been explicitly marked deprecated here
+   91 | void emscripten_set_canvas_size(int width, int height) __attribute__((deprecated("This variant does not allow specifying the target canvas", "Use emscripten_set_canvas_element_size() instead")));
+      |                                                                       ^
+/mnt/nfs/Workspace/luanti-wasm/irr/src/CIrrDeviceSDL.cpp:637:3: warning: 'emscripten_get_canvas_size' is deprecated: This variant does not allow specifying the target canvas [-Wdeprecated-declarations]
+  637 |                 emscripten_get_canvas_size(&w, &h, &fs);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                 Use emscripten_get_canvas_element_size() and emscripten_get_fullscreen_status() instead
+/home/oosawak/.emsdk/upstream/emscripten/cache/sysroot/include/emscripten/emscripten.h:92:122: note: 'emscripten_get_canvas_size' has been explicitly marked deprecated here
+   92 | void emscripten_get_canvas_size(int * _Nonnull width, int * _Nonnull height, int * _Nonnull isFullscreen) __attribute__((deprecated("This variant does not allow specifying the target canvas", "Use emscripten_get_canvas_element_size() and emscripten_get_fullscreen_status() instead")));
+      |                                                                                                                          ^
+/mnt/nfs/Workspace/luanti-wasm/irr/src/CIrrDeviceSDL.cpp:921:38: warning: null passed to a callee that requires a non-null argument [-Wnonnull]
+  921 |                                                 emscripten_request_pointerlock(0, true);
+      |                                                                                ^
+[ 12%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUIListBox.cpp.obj
+[ 12%] Building CXX object irr/src/CMakeFiles/IRRMESHOBJ.dir/AnimatedMeshSceneNode.cpp.obj
+[ 12%] Linking C static library libgmp.a
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 13%] Building CXX object irr/src/CMakeFiles/IRRMESHOBJ.dir/CB3DMeshFileLoader.cpp.obj
+[ 13%] Building CXX object irr/src/CMakeFiles/IRRVIDEOOBJ.dir/OpenGL/MaterialRenderer.cpp.obj
+[ 13%] Building CXX object irr/src/CMakeFiles/IRRMESHOBJ.dir/CGLTFMeshFileLoader.cpp.obj
+[ 13%] Built target gmp
+[ 13%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/ldump.c.obj
+[ 13%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUIScrollBar.cpp.obj
+[ 13%] Built target IRRIOOBJ
+[ 13%] Building CXX object irr/src/CMakeFiles/IRRVIDEOOBJ.dir/OpenGL/Renderer2D.cpp.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 13%] Building CXX object irr/src/CMakeFiles/IRRMESHOBJ.dir/COBJMeshFileLoader.cpp.obj
+[ 13%] Building CXX object irr/src/CMakeFiles/IRRMESHOBJ.dir/CXMeshFileLoader.cpp.obj
+[ 13%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lfunc.c.obj
+[ 14%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lgc.c.obj
+[ 15%] Building CXX object irr/src/CMakeFiles/IRRVIDEOOBJ.dir/OpenGL/BufferObject.cpp.obj
+3 warnings generated.
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 15%] Built target IRROTHEROBJ
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 15%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/linit.c.obj
+[ 16%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUISkin.cpp.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 16%] Building CXX object src/CMakeFiles/EngineCommon.dir/chat.cpp.obj
+[ 16%] Building CXX object irr/src/CMakeFiles/IRRVIDEOOBJ.dir/OpenGL3/DriverGL3.cpp.obj
+[ 16%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/liolib.c.obj
+/mnt/nfs/Workspace/luanti-wasm/irr/src/OpenGL/Driver.cpp:178:2: error: use of undeclared identifier 'ClientVertexVBO'
+  178 |         ClientVertexVBO.destroy();
+      |         ^~~~~~~~~~~~~~~
+[ 16%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUIStaticText.cpp.obj
+/mnt/nfs/Workspace/luanti-wasm/irr/src/OpenGL/Driver.cpp:686:78: error: too many arguments to function call, expected 6, have 7
+  686 |         drawGeneric(vertices, indexList, vertexCount, primitiveCount, vType, pType, iType);
+      |         ~~~~~~~~~~~                                                                 ^~~~~
+/mnt/nfs/Workspace/luanti-wasm/irr/src/OpenGL/Driver.h:306:7: note: 'drawGeneric' declared here
+  306 |         void drawGeneric(const void *vertices, const void *indexList, u32 primitiveCount,
+      |              ^           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  307 |                 E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType);
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/mnt/nfs/Workspace/luanti-wasm/irr/src/OpenGL/Driver.cpp:711:78: error: too many arguments to function call, expected 6, have 7
+  711 |         drawGeneric(vertices, indexList, vertexCount, primitiveCount, vType, pType, iType);
+      |         ~~~~~~~~~~~                                                                 ^~~~~
+/mnt/nfs/Workspace/luanti-wasm/irr/src/OpenGL/Driver.h:306:7: note: 'drawGeneric' declared here
+  306 |         void drawGeneric(const void *vertices, const void *indexList, u32 primitiveCount,
+      |              ^           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  307 |                 E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType);
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/mnt/nfs/Workspace/luanti-wasm/irr/src/OpenGL/Driver.cpp:983:26: error: out-of-line definition of 'bindClientVertexData' does not match any declaration in 'video::COpenGL3DriverBase'
+  983 | void COpenGL3DriverBase::bindClientVertexData(const void *vertices, size_t size)
+      |                          ^~~~~~~~~~~~~~~~~~~~
+/mnt/nfs/Workspace/luanti-wasm/irr/src/OpenGL/Driver.h:26:7: note: COpenGL3DriverBase defined here
+   26 | class COpenGL3DriverBase : public CNullDriver, public IMaterialRendererServices, public COpenGL3ExtensionHandler
+      |       ^~~~~~~~~~~~~~~~~~
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+/mnt/nfs/Workspace/luanti-wasm/irr/src/OpenGL/Driver.cpp:985:2: error: use of undeclared identifier 'ClientVertexVBO'
+  985 |         ClientVertexVBO.upload(vertices, size, 0, GL_STREAM_DRAW);
+      |         ^~~~~~~~~~~~~~~
+[ 16%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/llex.c.obj
+/mnt/nfs/Workspace/luanti-wasm/irr/src/OpenGL/Driver.cpp:986:33: error: use of undeclared identifier 'ClientVertexVBO'
+  986 |         GL.BindBuffer(GL_ARRAY_BUFFER, ClientVertexVBO.getName());
+      |                                        ^~~~~~~~~~~~~~~
+/mnt/nfs/Workspace/luanti-wasm/irr/src/OpenGL/Driver.cpp:1009:26: error: out-of-line definition of 'drawGeneric' does not match any declaration in 'video::COpenGL3DriverBase'
+ 1009 | void COpenGL3DriverBase::drawGeneric(const void *vertices, const void *indexList,
+      |                          ^~~~~~~~~~~
+/mnt/nfs/Workspace/luanti-wasm/irr/src/OpenGL/Driver.h:26:7: note: COpenGL3DriverBase defined here
+   26 | class COpenGL3DriverBase : public CNullDriver, public IMaterialRendererServices, public COpenGL3ExtensionHandler
+      |       ^~~~~~~~~~~~~~~~~~
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 16%] Building CXX object src/CMakeFiles/EngineCommon.dir/content_nodemeta.cpp.obj
+7 errors generated.
+make[3]: *** [irr/src/CMakeFiles/IRRVIDEOOBJ.dir/build.make:146: irr/src/CMakeFiles/IRRVIDEOOBJ.dir/OpenGL/Driver.cpp.obj] Error 1
+make[3]: *** Waiting for unfinished jobs....
+[ 17%] Building CXX object src/CMakeFiles/EngineCommon.dir/convert_json.cpp.obj
+[ 17%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lmathlib.c.obj
+[ 17%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lmem.c.obj
+[ 17%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUITabControl.cpp.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 18%] Building CXX object src/CMakeFiles/EngineCommon.dir/craftdef.cpp.obj
+[ 18%] Building CXX object src/CMakeFiles/EngineCommon.dir/debug.cpp.obj
+[ 18%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUISpriteBank.cpp.obj
+[ 18%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/loadlib.c.obj
+[ 19%] Building CXX object irr/src/CMakeFiles/IRRGUIOBJ.dir/CGUIImageList.cpp.obj
+[ 19%] Building CXX object src/CMakeFiles/EngineCommon.dir/face_position_cache.cpp.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 19%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lobject.c.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 20%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lopcodes.c.obj
+[ 20%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/loslib.c.obj
+[ 20%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lparser.c.obj
+[ 20%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lstate.c.obj
+[ 20%] Building CXX object src/CMakeFiles/EngineCommon.dir/gettext_plural_form.cpp.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 22%] Building CXX object src/CMakeFiles/EngineCommon.dir/httpfetch.cpp.obj
+[ 22%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lstrlib.c.obj
+[ 22%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lstring.c.obj
+[ 22%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/ltable.c.obj
+[ 22%] Building CXX object src/CMakeFiles/EngineCommon.dir/hud_element.cpp.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 22%] Building CXX object src/CMakeFiles/EngineCommon.dir/inventory.cpp.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 22%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/ltablib.c.obj
+[ 23%] Building CXX object src/CMakeFiles/EngineCommon.dir/itemstackmetadata.cpp.obj
+[ 23%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/ltm.c.obj
+[ 24%] Building CXX object src/CMakeFiles/EngineCommon.dir/log.cpp.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 24%] Building CXX object src/CMakeFiles/EngineCommon.dir/metadata.cpp.obj
+/mnt/nfs/Workspace/luanti-wasm/lib/lua/src/ltablib.c:140:5: warning: misleading indentation; statement is not part of the previous 'if' [-Wmisleading-indentation]
+  140 |     luaL_addvalue(b);
+      |     ^
+/mnt/nfs/Workspace/luanti-wasm/lib/lua/src/ltablib.c:137:3: note: previous statement is here
+  137 |   if (!lua_isstring(L, -1))
+      |   ^
+[ 24%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lundump.c.obj
+1 warning generated.
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 24%] Building CXX object src/CMakeFiles/EngineCommon.dir/modchannels.cpp.obj
+[ 24%] Building CXX object src/CMakeFiles/EngineCommon.dir/nameidmapping.cpp.obj
+[ 25%] Building CXX object src/CMakeFiles/EngineCommon.dir/nodemetadata.cpp.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 25%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lvm.c.obj
+[ 25%] Building CXX object src/CMakeFiles/EngineCommon.dir/nodetimer.cpp.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 25%] Building CXX object src/CMakeFiles/EngineCommon.dir/noise.cpp.obj
+[ 26%] Linking CXX static library libjsoncpp.a
+[ 26%] Building CXX object src/CMakeFiles/EngineCommon.dir/objdef.cpp.obj
+[ 26%] Built target jsoncpp
+[ 26%] Building CXX object lib/lua/src/CMakeFiles/lua.dir/lzio.c.obj
+[ 27%] Building CXX object src/CMakeFiles/EngineCommon.dir/object_properties.cpp.obj
+clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+[ 27%] Building CXX object src/CMakeFiles/EngineCommon.dir/particles.cpp.obj
+[ 27%] Building CXX object src/CMakeFiles/EngineCommon.dir/profiler.cpp.obj
+[ 27%] Building CXX object src/CMakeFiles/EngineCommon.dir/serialization.cpp.obj
+[ 28%] Built target IRRGUIOBJ
+[ 28%] Building CXX object src/CMakeFiles/EngineCommon.dir/sound_spec.cpp.obj
+[ 28%] Building CXX object src/CMakeFiles/EngineCommon.dir/settings.cpp.obj
+[ 29%] Building CXX object src/CMakeFiles/EngineCommon.dir/staticobject.cpp.obj
+[ 29%] Linking CXX static library liblua.a
+[ 29%] Building CXX object src/CMakeFiles/EngineCommon.dir/terminal_chat_console.cpp.obj
+[ 30%] Building CXX object src/CMakeFiles/EngineCommon.dir/texture_override.cpp.obj
+make[2]: *** [CMakeFiles/Makefile2:575: irr/src/CMakeFiles/IRRVIDEOOBJ.dir/all] Error 2
+make[2]: *** Waiting for unfinished jobs....
+[ 30%] Building CXX object src/CMakeFiles/EngineCommon.dir/tileanimation.cpp.obj
+[ 30%] Built target lua
+[ 30%] Building CXX object src/CMakeFiles/EngineCommon.dir/network/address.cpp.obj
+[ 30%] Building CXX object src/CMakeFiles/EngineCommon.dir/tool.cpp.obj
+[ 31%] Building CXX object src/CMakeFiles/EngineCommon.dir/network/connection.cpp.obj
+[ 31%] Building CXX object src/CMakeFiles/EngineCommon.dir/network/mtp/impl.cpp.obj
+[ 31%] Building CXX object src/CMakeFiles/EngineCommon.dir/network/mtp/threads.cpp.obj
+[ 31%] Building CXX object src/CMakeFiles/EngineCommon.dir/network/networkpacket.cpp.obj
+[ 32%] Building CXX object src/CMakeFiles/EngineCommon.dir/network/networkprotocol.cpp.obj
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:182:19: error: unknown type name 'ZSTD_CStream'
+  182 |         void operator() (ZSTD_CStream* cstream) {
+      |                          ^
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:186:19: error: unknown type name 'ZSTD_DStream'
+  186 |         void operator() (ZSTD_DStream* dstream) {
+      |                          ^
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:195:31: error: use of undeclared identifier 'ZSTD_CStream'
+  195 |         thread_local std::unique_ptr<ZSTD_CStream, ZSTD_Deleter> stream(ZSTD_createCStream());
+      |                                      ^~~~~~~~~~~~
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:195:66: error: use of undeclared identifier 'ZSTD_createCStream'
+  195 |         thread_local std::unique_ptr<ZSTD_CStream, ZSTD_Deleter> stream(ZSTD_createCStream());
+      |                                                                         ^~~~~~~~~~~~~~~~~~
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:202:2: error: unknown type name 'ZSTD_inBuffer'
+  202 |         ZSTD_inBuffer input = { data, data_size, 0 };
+      |         ^
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:203:2: error: unknown type name 'ZSTD_outBuffer'
+  203 |         ZSTD_outBuffer output = { output_buffer, bufsize, 0 };
+      |         ^
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:207:7: error: use of undeclared identifier 'ZSTD_isError'
+  207 |                 if (ZSTD_isError(ret)) {
+      |                     ^~~~~~~~~~~~
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:208:15: error: use of undeclared identifier 'ZSTD_getErrorName'
+  208 |                         dstream << ZSTD_getErrorName(ret) << std::endl;
+      |                                    ^~~~~~~~~~~~~~~~~
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:220:7: error: use of undeclared identifier 'ZSTD_isError'
+  220 |                 if (ZSTD_isError(ret)) {
+      |                     ^~~~~~~~~~~~
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:221:15: error: use of undeclared identifier 'ZSTD_getErrorName'
+  221 |                         dstream << ZSTD_getErrorName(ret) << std::endl;
+      |                                    ^~~~~~~~~~~~~~~~~
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:236:31: error: use of undeclared identifier 'ZSTD_DStream'
+  236 |         thread_local std::unique_ptr<ZSTD_DStream, ZSTD_Deleter> stream(ZSTD_createDStream());
+      |                                      ^~~~~~~~~~~~
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:236:66: error: use of undeclared identifier 'ZSTD_createDStream'
+  236 |         thread_local std::unique_ptr<ZSTD_DStream, ZSTD_Deleter> stream(ZSTD_createDStream());
+      |                                                                         ^~~~~~~~~~~~~~~~~~
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:244:2: error: unknown type name 'ZSTD_outBuffer'
+  244 |         ZSTD_outBuffer output = { output_buffer, bufsize, 0 };
+      |         ^
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:245:2: error: unknown type name 'ZSTD_inBuffer'
+  245 |         ZSTD_inBuffer input = { input_buffer, 0, 0 };
+      |         ^
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:258:7: error: use of undeclared identifier 'ZSTD_isError'
+  258 |                 if (ZSTD_isError(ret)) {
+      |                     ^~~~~~~~~~~~
+/mnt/nfs/Workspace/luanti-wasm/src/serialization.cpp:259:15: error: use of undeclared identifier 'ZSTD_getErrorName'
+  259 |                         dstream << ZSTD_getErrorName(ret) << std::endl;
+      |                                    ^~~~~~~~~~~~~~~~~
+[ 32%] Building CXX object src/CMakeFiles/EngineCommon.dir/network/socket.cpp.obj
+16 errors generated.
+make[3]: *** [src/CMakeFiles/EngineCommon.dir/build.make:384: src/CMakeFiles/EngineCommon.dir/serialization.cpp.obj] Error 1
+make[3]: *** Waiting for unfinished jobs....
+make[2]: *** [CMakeFiles/Makefile2:919: src/CMakeFiles/EngineCommon.dir/all] Error 2
+[ 32%] Built target IRRMESHOBJ
+make[1]: *** [CMakeFiles/Makefile2:960: src/CMakeFiles/luanti.dir/rule] Error 2
+make: *** [Makefile:384: luanti] Error 2

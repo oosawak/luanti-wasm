@@ -265,7 +265,11 @@ endif(ENABLE_OPENSSL)
 
 
 find_package(ZLIB REQUIRED)
-find_package(Zstd REQUIRED)
+if(NOT EMSCRIPTEN)
+  find_package(Zstd REQUIRED)
+else()
+  message(STATUS "EMSCRIPTEN build: skipping Zstd detection")
+endif()
 
 
 if(NOT MSVC)
@@ -888,16 +892,20 @@ elseif(NOT MSVC)
 	set(CMAKE_REQUIRED_LIBRARIES "")
 	unset(HAVE_ATCCALL CACHE)
 	# Note: we need to check the function without having the library
-	#       available for linking, so check_symbol_exists won't work.
+	#       available for linking, so check_c_source_compiles is used.
 	# Incidentally this doesn't seem to work on MSVC...
-	check_c_source_compiles("#include <lua.h>\nint main(){return sizeof(lua_atccall);}" HAVE_ATCCALL)
-	if(NOT HAVE_ATCCALL)
-		string(CONCAT explanation_msg
-			"It looks like you're trying to build ${PROJECT_NAME_CAPITALIZED} using a system-wide "
-			"Lua installation. This is no longer supported because PUC Lua "
-			"cannot interoperate with C++ correctly. Read src/unittest/test_lua.cpp "
-			" for technical details.")
-		message(FATAL_ERROR ${explanation_msg})
+	if(NOT EMSCRIPTEN)
+		check_c_source_compiles("#include <lua.h>\nint main(){return sizeof(lua_atccall);}" HAVE_ATCCALL)
+		if(NOT HAVE_ATCCALL)
+			string(CONCAT explanation_msg
+				"It looks like you're trying to build ${PROJECT_NAME_CAPITALIZED} using a system-wide "
+				"Lua installation. This is no longer supported because PUC Lua "
+				"cannot interoperate with C++ correctly. Read src/unittest/test_lua.cpp "
+				" for technical details.")
+			message(FATAL_ERROR ${explanation_msg})
+		endif()
+	else()
+		message(STATUS "EMSCRIPTEN build: skipping system-wide Lua check")
 	endif()
 endif()
 

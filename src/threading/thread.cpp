@@ -151,8 +151,14 @@ bool Thread::wait()
 	if (!m_joinable)
 		return false;
 
-
+#ifdef __EMSCRIPTEN__
+	// In single-threaded WASM, join() would block forever.
+	// Poll m_running with emscripten_sleep to yield to the browser.
+	while (m_running)
+		emscripten_sleep(1);
+#else
 	m_thread_obj->join();
+#endif
 
 	delete m_thread_obj;
 	m_thread_obj = nullptr;

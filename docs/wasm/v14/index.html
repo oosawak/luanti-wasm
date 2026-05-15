@@ -146,6 +146,18 @@
     }
     sizeCanvas();
     window.addEventListener('resize', sizeCanvas);
+
+    // ポインターロックを無効化してUIボタンを常にクリック可能にする
+    // Emscripten/SDLがポインターロックでマウスを奪うとHTMLボタンが押せなくなるため
+    canvas.requestPointerLock = function() {
+      addLog('[UI] ポインターロックを無効化しました（UIアクセシビリティのため）', 'info');
+    };
+    // Element.prototype経由でも無効化
+    var _origRPL = Element.prototype.requestPointerLock;
+    Element.prototype.requestPointerLock = function() {
+      if (this === canvas) return; // キャンバスのみブロック
+      if (_origRPL) return _origRPL.call(this);
+    };
   })();
 
   // WebGL draw/clear カウンター（luanti.js より前に設定）
@@ -287,6 +299,15 @@
     location.reload();
   });
 
+  // F2 キー → 停止/再開トグル（ポインターロック中でもキーボードは効く）
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'F2') {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      document.getElementById('stopBtn').click();
+    }
+  }, true); // capture=true で ゲームより先に処理
+
   // console をキャプチャ
   var _origErr  = console.error;
   var _origWarn = console.warn;
@@ -347,6 +368,31 @@
       addLog('[runtime] 初期化完了 (' + elapsed + '秒)', 'info');
       var c = document.getElementById('canvas');
       addLog('[canvas] ' + c.clientWidth + 'x' + c.clientHeight + ' (CSS)  ' + c.width + 'x' + c.height + ' (pixel)', 'info');
+
+      // Emscripten の実際の GL コンテキスト（fixedGetContextが迂回するため）に直接フック
+      setTimeout(function() {
+        try {
+          var glCtx = (typeof GL !== 'undefined') && GL.currentContext && GL.currentContext.handle;
+          if (glCtx && !glCtx.__emHooked) {
+            glCtx.__emHooked = true;
+            var _de = glCtx.drawElements; glCtx.drawElements = function() { _drawCount++; return _de.apply(this,arguments); };
+            var _da = glCtx.drawArrays;   glCtx.drawArrays   = function() { _drawCount++; return _da.apply(this,arguments); };
+            var _cl = glCtx.clear;        glCtx.clear        = function() { _clearCount++; return _cl.apply(this,arguments); };
+            addLog('[WebGL] Emscripten GLコンテキストにフック設定完了', 'info');
+
+            // ビューポートと Clear Color をダンプして青画面の原因を調査
+            var vp = glCtx.getParameter(glCtx.VIEWPORT);
+            addLog('[WebGL] viewport: ' + Array.from(vp).join(','), 'info');
+            var cc = glCtx.getParameter(glCtx.COLOR_CLEAR_VALUE);
+            addLog('[WebGL] clearColor: ' + Array.from(cc).map(function(v){return v.toFixed(2);}).join(','), 'info');
+          } else {
+            addLog('[WebGL] GL.currentContext取得失敗 — フックできません', 'warn');
+          }
+        } catch(e) {
+          addLog('[WebGL] フックエラー: ' + e.message, 'warn');
+        }
+      }, 500);
+
       clearInterval(_timerIv);
       _overlay.style.display = 'none';
       _fpsEl.style.display = 'block';
