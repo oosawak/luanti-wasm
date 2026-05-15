@@ -129,13 +129,32 @@
     var container = document.getElementById('canvas-container');
     function sizeCanvas() {
       var w = container.clientWidth, h = container.clientHeight;
+      var dpr = window.devicePixelRatio || 1;
+      addLog('[canvas-before] container: ' + w + 'x' + h + ' | canvas: ' + canvas.width + 'x' + canvas.height + ' | dpr: ' + dpr.toFixed(2), 'info');
       if (w > 0 && h > 0 && (canvas.width !== w || canvas.height !== h)) {
         canvas.width = w; canvas.height = h;
-        addLog('[canvas] リサイズ: ' + w + 'x' + h, 'info');
+        addLog('[canvas-after] リサイズ: ' + w + 'x' + h + ' (physical: ' + (w*dpr).toFixed(0) + 'x' + (h*dpr).toFixed(0) + ')', 'info');
+      } else if (w <= 0 || h <= 0) {
+        addLog('[canvas] スキップ: w=' + w + ', h=' + h, 'warn');
       }
     }
     sizeCanvas();
     window.addEventListener('resize', sizeCanvas);
+
+    // Monitor canvas dimension changes from C++
+    var _observerActive = true;
+    setTimeout(function() {
+      _observerActive = false;
+    }, 30000);
+
+    var _lastW = canvas.width, _lastH = canvas.height;
+    var _checkInterval = setInterval(function() {
+      if (_observerActive && (canvas.width !== _lastW || canvas.height !== _lastH)) {
+        addLog('[canvas-changed] ' + _lastW + 'x' + _lastH + ' → ' + canvas.width + 'x' + canvas.height, 'warn');
+        _lastW = canvas.width;
+        _lastH = canvas.height;
+      }
+    }, 100);
 
     canvas.requestPointerLock = function() {
       addLog('[UI] ポインターロックを無効化しました', 'info');
@@ -159,6 +178,19 @@
         var dai = ctx.drawElementsInstanced; ctx.drawElementsInstanced = function() { _drawCount++; return dai.apply(this,arguments); };
         var da  = ctx.drawArrays;            ctx.drawArrays            = function() { _drawCount++; return da.apply(this,arguments); };
         var cl  = ctx.clear;                 ctx.clear                 = function() { _clearCount++; return cl.apply(this,arguments); };
+
+        // Track viewport changes
+        var _lastVP = null;
+        var _origViewport = ctx.viewport;
+        ctx.viewport = function(x, y, w, h) {
+          var vp = [x, y, w, h].join(',');
+          if (vp !== _lastVP) {
+            addLog('[WebGL] viewport: ' + vp, 'info');
+            _lastVP = vp;
+          }
+          return _origViewport.call(this, x, y, w, h);
+        };
+
         addLog('[WebGL] コンテキスト取得+フック(v25): ' + t, 'info');
 
         // 5秒後にWebGLエラー確認
@@ -167,7 +199,9 @@
           if (err) addLog('[WebGL] getError=' + err + ' (0=OK)', 'warn');
           else addLog('[WebGL] getError=0 (エラーなし)', 'info');
           var vp = ctx.getParameter(ctx.VIEWPORT);
-          if (vp) addLog('[WebGL] viewport: ' + Array.from(vp).join(','), 'info');
+          if (vp) addLog('[WebGL] current viewport: ' + Array.from(vp).join(','), 'info');
+          var c = document.getElementById('canvas');
+          addLog('[WebGL] canvas.width=' + c.width + ', canvas.height=' + c.height, 'info');
         }, 5000);
       }
       return ctx;
