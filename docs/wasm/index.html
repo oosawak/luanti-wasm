@@ -208,7 +208,7 @@
     };
   })();
 
-  var _rafFrames = 0, _rafLast = performance.now(), _logTick = 0;
+  var _rafFrames = 0, _rafLast = performance.now(), _logTick = 0, _lastCanvasState = '';
   (function loop(t) {
     _rafFrames++;
     if (t - _rafLast >= 1000) {
@@ -219,6 +219,13 @@
       _fpsEl.style.color = dps > 0 ? '#0f0' : (cps > 0 ? '#fa0' : '#f44');
       _logTick++;
       if (_logTick % 10 === 0) {
+        var c = document.getElementById('canvas');
+        var con = document.getElementById('canvas-container');
+        var state = c.width + 'x' + c.height + ' (canvas) | ' + con.clientWidth + 'x' + con.clientHeight + ' (container)';
+        if (state !== _lastCanvasState) {
+          addLog('[state-change] ' + state, 'warn');
+          _lastCanvasState = state;
+        }
         addLog('[FPS] ' + fps + ' fps | ' + dps + ' draws/s | ' + cps + ' clears/s', dps > 0 ? 'info' : 'warn');
       }
       _rafFrames = 0; _drawCount = 0; _clearCount = 0; _rafLast = t;
