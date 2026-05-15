@@ -1001,7 +1001,7 @@ void COpenGL3DriverBase::drawElements(GLenum primitiveType, const VertexType &ve
 		return;
 	bindClientVertexData(vertices, vertexCount * vertexType.VertexSize);
 	beginDraw(vertexType, 0);
-	GL.DrawRangeElements(primitiveType, 0, vertexCount - 1, indexCount, GL_UNSIGNED_SHORT, indices);
+	GL.DrawElements(primitiveType, indexCount, GL_UNSIGNED_SHORT, 0);
 	endDraw(vertexType);
 	GL.BindBuffer(GL_ARRAY_BUFFER, 0);
 }
