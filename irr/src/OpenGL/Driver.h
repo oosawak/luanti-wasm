@@ -302,8 +302,9 @@ protected:
 	void drawQuad(const VertexType &vertexType, const S3DVertex (&vertices)[4]);
 	void drawArrays(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount);
 	void drawElements(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount, const u16 *indices, int indexCount);
+	void bindClientVertexData(const void *vertices, size_t size);
 
-	void drawGeneric(const void *vertices, const void *indexList, u32 primitiveCount,
+	void drawGeneric(const void *vertices, const void *indexList, u32 vertexCount, u32 primitiveCount,
 		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType);
 
 	void beginDraw(const VertexType &vertexType, uintptr_t verticesBase);
@@ -358,6 +359,7 @@ private:
 	bool EnableErrorTest;
 
 	OGLBufferObject QuadIndexVBO = OGLBufferObject(OGLBufferObject::TARGET_IBO);
+	OGLBufferObject ClientVertexVBO = OGLBufferObject(OGLBufferObject::TARGET_VBO);
 	void initQuadsIndices(u32 max_vertex_count = 65536);
 
 	u16 MaxJointTransforms = 0;
