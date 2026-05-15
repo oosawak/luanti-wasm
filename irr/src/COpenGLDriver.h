@@ -151,6 +151,11 @@ public:
 			const core::position2d<s32> &end,
 			SColor color = SColor(255, 255, 255, 255)) override;
 
+	//! Draws a 3d line.
+	virtual void draw3DLine(const core::vector3df &start,
+			const core::vector3df &end,
+			SColor color = SColor(255, 255, 255, 255)) override;
+
 	//! \return Returns the name of the video driver. Example: In case of the Direct3D8
 	//! driver, it would return "Direct3D8.1".
 	const char *getName() const override;

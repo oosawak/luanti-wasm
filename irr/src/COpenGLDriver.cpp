@@ -1354,6 +1354,13 @@ void COpenGLDriver::setFog(SColor c, E_FOG_TYPE fogType, f32 start,
 }
 
 //! Draws a 3d line.
+void COpenGLDriver::draw3DLine(const core::vector3df &start,
+		const core::vector3df &end, SColor color)
+{
+	// Use base class implementation (VBO-based)
+	COpenGL3DriverBase::draw3DLine(start, end, color);
+}
+
 //! Removes a texture from the texture cache and deletes it, freeing lot of memory.
 void COpenGLDriver::removeTexture(ITexture *texture)
 {
